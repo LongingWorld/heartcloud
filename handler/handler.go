@@ -30,12 +30,12 @@ func PostHandler(c *gin.Context) {
 		c.JSON(40001, "Token失效")
 		return
 	}
-	staffID := staffInfo["staff_id"].(int)
+	staffID := int(staffInfo["staff_id"].(float64))
 	/* if !ok {
 		fmt.Println("errors what!?")
 	} */
 	staffName := staffInfo["name"].(string)
-	companyID := staffInfo["company_id"].(int)
+	companyID := int(staffInfo["company_id"].(float64))
 	companyName := staffInfo["company_name"].(string)
 
 	/*连接数据库*/
@@ -205,19 +205,19 @@ func PostHandler(c *gin.Context) {
 	maxRepID[0]++
 	//计算员工年龄
 	thisYear := time.Now().Year()
-	var year int
-	if err := tx.Table("xy_staff").
-		Select("DATE_FORMAT(birthday,'%Y')").
+	var year []int
+	if err := tx.Debug().Table("xy_staff").
+		// Select("DATE_FORMAT(birthday,'%Y')").
 		Where("id = ?", staffID).
-		Find(&year).Error; err != nil {
+		Pluck("DATE_FORMAT(birthday,'%Y')", &year).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select Table xy_staff error!", file, line)
 		//回滚事务
 		tx.Rollback()
 		return
 	}
-	age := thisYear - year
-	fmt.Printf("######   This year is %d,birthday is %d,age is %d\n", thisYear, year, age)
+	age := thisYear - year[0]
+	fmt.Printf("######   This year is %d,birthday is %v,age is %d\n", thisYear, year, age)
 	/*生成员工报告*/
 	var reportStaff model.ReportStaff
 	reportStaff = model.ReportStaff{
