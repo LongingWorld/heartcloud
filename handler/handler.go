@@ -2,24 +2,42 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
-	"xinyun/model"
+	"heartcloud/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/mysql" //mysql驱动
 )
 
 func PostHandler(c *gin.Context) {
 	fmt.Println("@@@@@@@Start@@@@@@@")
+
+	//验证登录Token信息，并获取用户信息
+	staffInfo, err := verifyToken(c)
+	if err != nil {
+		log.Printf("验证Token信息失败！\n")
+		c.JSON(40001, "Token失效")
+		return
+	}
+	staffID := staffInfo["staff_id"].(int)
+	/* if !ok {
+		fmt.Println("errors what!?")
+	} */
+	staffName := staffInfo["name"].(string)
+	companyID := staffInfo["company_id"].(int)
+	companyName := staffInfo["company_name"].(string)
+
 	/*连接数据库*/
 	// db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/xyxj2018?charset=utf8&parseTime=true&loc=Local")
 	db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/xyxjdata?charset=utf8&parseTime=true&loc=Local")
@@ -46,6 +64,7 @@ func PostHandler(c *gin.Context) {
 		Scan(&gauge).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select Table xy_gauge error!", file, line)
+		c.JSON(401, "系统异常")
 		return
 	}
 	fmt.Printf("@@@@@@   xy_gauge量表数据:\n %v\n", gauge)
@@ -56,12 +75,14 @@ func PostHandler(c *gin.Context) {
 		Count(&count).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select Table xy_gauge error!", file, line)
+		c.JSON(401, "系统异常")
 		return
 	}
 
 	fmt.Printf("*****@@@@@@   count is %d name is %s****\n", count, gauge.Name)
 	if gauge.ID == 0 {
 		log.Printf("量表%s不存在", gaugeID)
+		c.JSON(401, "量表不存在")
 		return
 	}
 
@@ -87,26 +108,9 @@ func PostHandler(c *gin.Context) {
 	}
 	fmt.Printf("@@@@@@   答案信息map:\n %v\n", subjectsAnswersArr)
 
-	/*读取redis获取token,通过token匹配用户信息BEGIN*/
-	//获取Token
-	authorization := c.GetHeader("Authorization")
-	fmt.Printf("@@@@@@@   authorization is :%s\n", authorization)
-	tokenKey := model.AccessTokenPrefix + authorization
-	//连接Redis
-	conRedis, err := redis.Dial("tcp", "127.0.0.1:6379")
-	if err != nil {
-		fmt.Println("Connect to redis error", err)
-		return
-	}
-	defer conRedis.Close()
-	clientInfo, err := redis.StringMap(conRedis.Do("Get", tokenKey))
-	fmt.Printf("@@@@@@   客户端信息:%v\n", clientInfo)
-
-	/*读取redis获取token,通过token匹配用户信息END*/
-
 	/*获取xy_reportsetting报告设置表信息*/
 	var reportSet model.Reportsetting
-	if err := db.Table("xy_report_seating").
+	if err := db.Table("xy_report_setting").
 		Where("gauge_id = ?", gint).
 		Find(&reportSet).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
@@ -120,17 +124,17 @@ func PostHandler(c *gin.Context) {
 
 	/*获取员工答题信息*/
 	if err := db.Table("xy_staff_answer").
-		Where("service_use_staff_id = ? AND staff_id = ? AND is_finish = ? AND deleted_at is null", staAnsID, 53, 2).
+		Where("service_use_staff_id = ? AND staff_id = ? AND is_finish = ? AND deleted_at is null", staAnsID, staffID, 2).
 		Find(&staffAnswer).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select Table xy_staff_answer error!", file, line)
 		return
 	}
 	if len(staffAnswer) == 0 {
-		log.Printf("员工%d答题信息表记录不存在！", 53)
+		log.Printf("员工%d答题信息表记录不存在！", staffID)
 		return
 	}
-	fmt.Printf("@@@@@@   员工ID：53,员工答题ID：%d ,答题信息:\n %v \n", staffAnswer[0].ID, staffAnswer)
+	fmt.Printf("@@@@@@   员工ID：%d,员工答题ID：%d ,答题信息:\n %v \n", staffID, staffAnswer[0].ID, staffAnswer)
 
 	/*获取员工答题题目列表*/
 	subjectIDs := getKeysFromMap(subjectsAnswersArr)
@@ -160,8 +164,10 @@ func PostHandler(c *gin.Context) {
 	tx := db.Begin()
 	/*更新staffanswer表isfinish和答题结束时间*/
 	if err := tx.Table("xy_staff_answer").
-		Where("service_use_staff_id = ? AND staff_id = ? AND is_finish = ? AND deleted_at is null", staAnsID, 53, 2).
-		Updates(map[string]interface{}{"is_finish": 1, "deleted_at": time.Now().Format("2006-01-02 15:04:05")}).Error; err != nil {
+		Where("service_use_staff_id = ? AND staff_id = ? AND is_finish = ? AND deleted_at is null",
+			staAnsID, staffID, 2).
+		Updates(map[string]interface{}{"is_finish": 1, "deleted_at": time.Now().Format("2006-01-02 15:04:05")}).
+		Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Update Table xy_staff_answer error!", file, line)
 		//回滚事务
@@ -176,7 +182,7 @@ func PostHandler(c *gin.Context) {
 			SubjectID:       k,
 			SubjectAnswerID: value,
 			StaffAnswerID:   int(staffAnswer[0].ID),
-			StaffID:         53,
+			StaffID:         staffID,
 		}
 		if err := tx.Table("xy_staff_auswer_option").Create(&staffAnsOpe).Error; err != nil {
 			_, file, line, _ := runtime.Caller(0)
@@ -197,6 +203,21 @@ func PostHandler(c *gin.Context) {
 		return
 	}
 	maxRepID[0]++
+	//计算员工年龄
+	thisYear := time.Now().Year()
+	var year int
+	if err := tx.Table("xy_staff").
+		Select("DATE_FORMAT(birthday,'%Y')").
+		Where("id = ?", staffID).
+		Find(&year).Error; err != nil {
+		_, file, line, _ := runtime.Caller(0)
+		log.Printf("%s:%d:Select Table xy_staff error!", file, line)
+		//回滚事务
+		tx.Rollback()
+		return
+	}
+	age := thisYear - year
+	fmt.Printf("######   This year is %d,birthday is %d,age is %d\n", thisYear, year, age)
 	/*生成员工报告*/
 	var reportStaff model.ReportStaff
 	reportStaff = model.ReportStaff{
@@ -214,11 +235,11 @@ func PostHandler(c *gin.Context) {
 		Comment:             reportSet.Comment,
 		HideDimSuggest:      reportSet.HideDimSuggest,
 		GaugeID:             int(gauge.ID),
-		StaffID:             53,
-		StaffName:           "宋志勇",
-		StaffAge:            37,
-		CompanyID:           12,
-		CompanyName:         "四川心云智慧科技有限公司",
+		StaffID:             staffID,
+		StaffName:           staffName,
+		StaffAge:            age,
+		CompanyID:           companyID,
+		CompanyName:         companyName,
 		Number:              createRepNO("SNO"),
 		Status:              1,
 		TemplateID:          gauge.TemplateID,
@@ -485,7 +506,7 @@ func PostHandler(c *gin.Context) {
 			}
 			//fmt.Printf("@@@@@@   res is %v\n", res)
 
-			staffDim.StaffID = 53
+			staffDim.StaffID = staffID
 			staffDim.DimName = res.DimName
 			//staffDim.NormName = "不知道什么原因"
 			staffDim.DimensionID = res.DimensionID
@@ -570,6 +591,69 @@ func PostHandler(c *gin.Context) {
 	tx.Commit()
 	c.JSON(http.StatusOK, "success")
 	return
+}
+
+//用户信息验证Token
+func verifyToken(c *gin.Context) (map[string]interface{}, error) {
+	/*读取redis获取token,通过token匹配用户信息BEGIN*/
+	//获取Token
+	authorization := c.GetHeader("Authorization")
+	fmt.Printf("@@@@@@@   authorization is :%s\n", authorization)
+	tokenKey := model.AccessTokenPrefix + authorization
+	//连接Redis
+	conRedis, err := redis.Dial("tcp", "127.0.0.1:6379")
+	if err != nil {
+		fmt.Println("Connect to redis error", err)
+		return nil, err
+	}
+	defer conRedis.Close()
+	keyInfo, err := redis.Bytes(conRedis.Do("Get", tokenKey)) //获取客户端缓存信息
+	if err != nil {
+		log.Printf("登录信息已过期，请重新登陆！\n")
+		return nil, err
+	}
+	fmt.Printf("@@@@@@   客户端信息:%v\n", keyInfo)
+
+	var clientInfo map[string]interface{}
+	err = json.Unmarshal(keyInfo, &clientInfo) //解析JSON字符串信息
+	if err != nil {
+		fmt.Printf("Unmarshal JSON error : %s\n", err)
+		return nil, err
+	}
+	fmt.Println("####getkey ::", clientInfo)
+
+	//获取缓存token
+	cacheToken := clientInfo["access_token"]
+	switch token := cacheToken.(type) {
+	case string:
+		if strings.Compare(token, authorization) != 0 {
+			log.Printf("登录信息验证错误,请重新登录！\n")
+			return nil, errors.New("登录信息验证错误,请重新登录！")
+		}
+	}
+
+	//获取token过期时间(过期后无法得到token)
+	// tokenExpireTime := clientInfo["expires_time"]
+	/* isStaffInfo := clientInfo["client"]
+	switch i := isStaffInfo.(type) { //switch type assertion
+	case interface{}:
+		fmt.Println("hahahahhaha", i)
+	case map[string]interface{}:
+		fmt.Println("map[string]interface{}", i)
+	}
+	fmt.Println(isStaffInfo) */
+	// 获取员工登陆信息
+	staffInfo, ok := clientInfo["client"].(map[string]interface{})
+	if ok { //type assertion
+		fmt.Println(staffInfo["staff_id"])
+		fmt.Println(staffInfo["name"])
+		fmt.Println(staffInfo["phone"])
+		fmt.Println(staffInfo["company_id"])
+		fmt.Println(staffInfo["company_name"])
+	}
+
+	/*读取redis获取token,通过token匹配用户信息END*/
+	return staffInfo, nil
 }
 
 /*获取map中的key值，并存放在slice中*/

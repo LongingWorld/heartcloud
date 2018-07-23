@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"xinyun/model"
+	"heartcloud/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
