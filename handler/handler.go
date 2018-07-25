@@ -20,6 +20,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql" //mysql驱动
 )
 
+/*PostHandler function generate staff reports*/
 func PostHandler(c *gin.Context) {
 	fmt.Println("@@@@@@@Start@@@@@@@")
 
@@ -685,6 +686,7 @@ func createRepNO(s string) string {
 	return rand.Int63n(max-min) + min
 } */
 
+/*GenerateRangeNum generate range numbers*/
 func GenerateRangeNum(min, max int) int {
 	rand.Seed(time.Now().Unix())
 	randNum := rand.Intn(max - min)

@@ -21,6 +21,7 @@ func main() {
 	//添加中间件
 	router.Use(Middleware)
 	router.POST("/first", handler.PostHandler)
+	router.POST("/first", handler.)
 
 	http.ListenAndServe(":8000", router)
 }
