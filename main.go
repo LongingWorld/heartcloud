@@ -21,11 +21,12 @@ func main() {
 	//添加中间件
 	router.Use(Middleware)
 	router.POST("/first", handler.PostHandler)
-	router.POST("/first", handler.)
+	router.POST("/first", handler.GenerateCompanyReport)
 
 	http.ListenAndServe(":8000", router)
 }
 
+/*Middleware 中间件 */
 func Middleware(c *gin.Context) {
 	fmt.Println("this is a middleware!")
 }
