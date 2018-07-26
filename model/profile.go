@@ -68,6 +68,7 @@ type Company struct {
 	DeletedTime    string */
 }
 
+/*StaffAnswer is the struct of table xy_staff_answer */
 type StaffAnswer struct {
 	gorm.Model
 	ServiceUseStaffID int    `gorm:"type:int(11);Default NULL"`
@@ -152,12 +153,14 @@ type ReportStaff struct {
 	   	DeletedTime         string */
 }
 
+/*ReportStaffData is mapping  xy_report_staff_data */
 type ReportStaffData struct {
 	ReportStaffID   int    `gorm:"type:int(11);DEFAULT NULL"`
 	ReportData      string `gorm:"type:mediumtext"`
 	ReportDataExtra string `gorm:"type:mediumtext"`
 }
 
+/*NormDetail is the norm explain information */
 type NormDetail struct {
 	ID             int    `json:"norm_explain_id"`
 	Name           string `json:"name"`
@@ -165,12 +168,16 @@ type NormDetail struct {
 	CoachProposal  string `json:"coach_proposal"`
 	//IsCheck        int    `json:"is_check"`
 }
+
+/*ExplainsDetail is the norm explain information  */
 type ExplainsDetail struct {
 	MapID       int    `json:"norm_explain_id"`
 	OptionName  string `json:"name"`
 	MapExplain  string `json:"score_introduce"`
 	MapProposal string `json:"coach_proposal"`
 }
+
+/*StaffDimension is the response of report_staff */
 type StaffDimension struct {
 	StaffID        int              `json:"staff_id"`
 	DimensionID    int              `json:"dimension_id"`
@@ -186,6 +193,132 @@ type StaffDimension struct {
 	NormType       int              `json:"norm_type"`
 	ReferenctValue string           `json:"reference_value"`
 	ExplainsDetail []ExplainsDetail `json:"explains_detail"`
+}
+
+/*ReportCompany is the struct of table xy_report_company */
+type ReportCompany struct {
+	gorm.Model
+	ReportName   string `gorm:"type:varchar(128);Default NULL"`
+	BgDesc       string `gorm:"type:text"`
+	Introduce    string `gorm:"type:text"`
+	Number       string `gorm:"type:varchar(12);DEFAULT NULL "`
+	CompanyID    int    `gorm:"type:int(11);DEFAULT NULL"`
+	GaugeIds     string `gorm:"type:text"`
+	Status       int    `gorm:"type:tinyint(1);DEFAULT NULL"`
+	Propocal     string `gorm:"type:text"`
+	GenerateDate string `gorm:"type:timestamp;NULL DEFAULT NULL"`
+}
+
+/*ReportCompanyData is mapping  xy_report_company_data */
+type ReportCompanyData struct {
+	ReportCompanyID int    `gorm:"type:int(11);DEFAULT NULL"`
+	ReportData      string `gorm:"type:mediumtext"`
+	URL             string `gorm:"type:varchar(255);DEFAULT NULL"`
+	ReportDataAPI   string `gorm:"type:mediumtext"`
+}
+
+/*CompReportDetail is the response of report_company template_id=4*/
+type CompReportDetail struct {
+	GaugeID       int          `json:"id"`
+	GaugeName     string       `json:"name"`
+	GaugeShowName string       `json:"show_name"`
+	TemplateID    int          `json:"template_id"`
+	Introduction  string       `json:"section1"`
+	Section2      SectionOne   `json:"Section2"`
+	Section3      SectionOne   `json:"section3"`
+	Section4      SectionTwo   `json:"Section4"`
+	Section5      SectionThree `json:"section5"`
+	Section6      SectionFour  `json:"Section6"`
+	Section7      SectionFive  `json:"section7"`
+}
+
+/*SectionOne is the introduction of the company report */
+type SectionOne struct {
+	Data      Animals `json:"data"`
+	DescAnaly DescAnalysis
+}
+
+/*DescAnalysis is the struct of describe and analysis of those questions */
+type DescAnalysis struct {
+	Describe string `json:"desc"`
+	Analysis string `json:"analysis"`
+}
+
+/*Animals is the struct of the first and second question answers*/
+type Animals struct {
+	Tiger  Animal `json:"tiger"`
+	Dog    Animal `json:"dog"`
+	Ant    Animal `json:"ant"`
+	Wolf   Animal `json:"wolf"`
+	Fox    Animal `json:"fox"`
+	Spider Animal `json:"spider"`
+	Lion   Animal `json:"lion"`
+	Cow    Animal `json:"cow"`
+	Sheep  Animal `json:"sheep"`
+	Horse  Animal `json:"horse"`
+	Rabbit Animal `json:"rabbit"`
+	Bee    Animal `json:"bee"`
+	Cayman Animal `json:"cayman"`
+	Mouse  Animal `json:"mouse"`
+}
+
+/*Animal is the comment of the first and second question*/
+type Animal struct {
+	Name   string `json:"name"`
+	Number int    `json:"number"`
+}
+
+/*SectionTwo is the struct of the third question*/
+type SectionTwo struct {
+	Data      AttitudeToSuperior `json:"data"`
+	DescAnaly DescAnalysis
+}
+type AttitudeToSuperior struct {
+	Adore     NormData `json:"adore"`
+	Attitueds AttitudeMembers
+}
+type SectionThree struct {
+	Data      AttitudeToStaff `json:"data"`
+	DescAnaly DescAnalysis
+}
+type AttitudeToStaff struct {
+	Appreciate NormData `json:"appreciate"`
+	Attitueds  AttitudeMembers
+}
+type AttitudeMembers struct {
+	Accept  NormData `json:"accept"`
+	Notcare NormData `json:"notcare"`
+	Deny    NormData `json:"deny"`
+	Hate    NormData `json:"hate"`
+	Fear    NormData `json:"fear"`
+}
+
+type NormData struct {
+	Name    string  `json:"name"`
+	Status  int     `json:"status"`
+	Persent float64 `json:"persent"`
+}
+
+type SectionFour struct {
+	Data      CooperationIndex `json:"data"`
+	DescAnaly DescAnalysis
+}
+type CooperationIndex struct {
+	FirstQuadrant  NormData `json:"firstQuadrant"`
+	SecondQuadrant NormData `json:"secondQuadrant"`
+	ThirdQuadrant  NormData `json:"thirdQuadrant"`
+	FourthQuadrant NormData `json:"fourthQuadrant"`
+}
+
+type SectionFive struct {
+	Data      RelationshipStatus `json:"data"`
+	DescAnaly DescAnalysis
+}
+type RelationshipStatus struct {
+	Level1 NormData `json:"level_1"`
+	Level2 NormData `json:"level_2"`
+	Level3 NormData `json:"level_3"`
+	Level4 NormData `json:"level_4"`
 }
 
 type SystemConf struct {
