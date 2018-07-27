@@ -15,7 +15,4 @@ type Company struct {
 	StartTime      string `gorm:"type:timestamp;Default NULL"`
 	EndTime        string `gorm:"type:timestamp;Default NULL"`
 	AdminID        int    `gorm:"type:int(11);Default NULL"`
-	/* CreatedTime    string
-	UpdatedTime    string
-	DeletedTime    string */
 }

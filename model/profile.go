@@ -48,9 +48,9 @@ type CompReportDetail struct {
 	Section1      Section1 `json:"Section1"`
 	Section2      Section2 `json:"Section2"`
 	Section3      Section3 `json:"Section3"`
-	Section4      Section4 `json:"section4"`
+	Section4      Section4 `json:"Section4"`
 	Section5      Section5 `json:"Section5"`
-	Section6      Section6 `json:"section6"`
+	Section6      Section6 `json:"Section6"`
 }
 
 /*Section1 is the datastruct  of the first question */

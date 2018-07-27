@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"heartcloud/controller"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,8 +20,8 @@ func main() {
 	router := gin.Default()
 	//添加中间件
 	router.Use(Middleware)
-	router.POST("/staffreport", GenerateStaffReport)
-	router.POST("/companyreport", GenerateCompanyReport)
+	router.POST("/staffreport", controller.GenerateStaffReport)
+	router.POST("/companyreport", controller.GenerateCompanyReport)
 
 	http.ListenAndServe(":8000", router)
 }

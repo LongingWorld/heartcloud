@@ -1,4 +1,4 @@
-package handler_test
+package controller_test
 
 import (
 	"log"

@@ -1,4 +1,4 @@
-package handler
+package controller
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql" //mysql驱动
 )
 
-/*PostHandler function generate staff reports*/
+/*GenerateStaffReport function generate staff reports*/
 func GenerateStaffReport(c *gin.Context) {
 	fmt.Println("@@@@@@@Start@@@@@@@")
 
