@@ -103,7 +103,7 @@ func GenerateStaffReportOfChronicFatigues(db *gorm.DB, ansarr map[string]int) (c
 		subID, _ := strconv.Atoi(subjectID)
 		if err := db.Debug().
 			Table("xy_subject a").
-			Joins("left join xy_subject_answer b on a.id = b.suject_id").
+			Joins("left join xy_subject_answer b on a.id = b.subject_id").
 			Select("a.sort as answer_sort,b.sort as subject_sort").
 			Where("b.id = ? AND b.subject_id = ?", answerID, subID).
 			Scan(&sort).Error; err != nil {
