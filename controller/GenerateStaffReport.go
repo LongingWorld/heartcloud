@@ -41,7 +41,7 @@ func GenerateStaffReport(c *gin.Context) {
 
 	/*连接数据库*/
 	// db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/xyxj2018?charset=utf8&parseTime=true&loc=Local")
-	db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/xyxjdata?charset=utf8&parseTime=true&loc=Local")
+	db, err := gorm.Open("mysql", "root:@tcp(192.168.2.228:3306)/xyxjdata?charset=utf8&parseTime=true&loc=Local")
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -529,6 +529,24 @@ func GenerateStaffReport(c *gin.Context) {
 		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 		// reportStaffData.ReportStaffID = int(reportStaff.ID)
 		reportStaffData.ReportStaffID = int(reportStaff.ID)
+	} else if gauge.TemplateID == 5 {
+		chronicFatigueDetails, err := GenerateStaffReportOfChronicFatigues(tx, subjectsAnswersArr)
+		if err != nil {
+			_, file, line, _ := runtime.Caller(0)
+			log.Printf("%s:%d:生成慢性疲劳报告失败 error!", file, line)
+			//回滚事务
+			tx.Rollback()
+		}
+		/*转换JSON*/
+		chroFatiDetail, err := json.Marshal(chronicFatigueDetails)
+		if err != nil {
+			log.Println("Marshal JSON字符串错！")
+			//回滚事务
+			tx.Rollback()
+			return
+		}
+		reportStaffData.ReportData = string(chroFatiDetail)
+		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 	} else {
 		log.Printf("%d未知的模板报告！", gauge.TemplateID)
 	}
@@ -602,7 +620,7 @@ func verifyToken(c *gin.Context) (map[string]interface{}, error) {
 	fmt.Printf("@@@@@@@   authorization is :%s\n", authorization)
 	tokenKey := model.AccessTokenPrefix + authorization
 	//连接Redis
-	conRedis, err := redis.Dial("tcp", "127.0.0.1:6379")
+	conRedis, err := redis.Dial("tcp", "192.168.2.228:6379")
 	if err != nil {
 		fmt.Println("Connect to redis error", err)
 		return nil, err
