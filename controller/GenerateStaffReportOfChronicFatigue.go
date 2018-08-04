@@ -214,5 +214,5 @@ func GenerateStaffReportOfChronicFatigues(db *gorm.DB, ansarr map[string]int) (c
 	chroFatiStaRe.Section3 = chroFatiSection3
 	//chroFatiStaRe.TemplateID = 5
 
-	return model.ChronicFatigueStaffReport{}, nil
+	return chroFatiStaRe, nil
 }
