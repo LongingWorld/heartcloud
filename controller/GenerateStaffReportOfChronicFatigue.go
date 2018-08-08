@@ -206,7 +206,6 @@ func GenerateStaffReportOfChronicFatigues(db *gorm.DB, ansarr map[string]int) (c
 	chroFatiStaRe.Section1 = chroFatiSection1
 	chroFatiStaRe.Section2 = chroFatiSection2
 	// chroFatiStaRe.Section3 = chroFatiSection3
-	//chroFatiStaRe.TemplateID = 5
-	fmt.Printf("@#@#@#@  chroFatiStaRe is \n %v", chroFatiStaRe)
+
 	return chroFatiStaRe, nil
 }
