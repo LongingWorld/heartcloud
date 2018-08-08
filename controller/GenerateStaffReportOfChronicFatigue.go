@@ -16,26 +16,11 @@ func GenerateStaffReportOfChronicFatigues(db *gorm.DB, ansarr map[string]int) (c
 	var (
 		chroFatiSection1 model.ChronicFatigueSection1
 		chroFatiSection2 model.ChronicFatigueSection2
-		chroFatiSection3 model.ChronicFatigueSection3
+		//chroFatiSection3 model.ChronicFatigueSection3
 		chroFatiDimDescs []model.ChronicFatigueDimensionDesc
 		//chroFatiEndanger []model.ChronicFatigueNormDescribe
 		chooseCount int
 	)
-
-	chroFatiSection2.ChronicFatigueEndanger = []model.ChronicFatigueNormDescribe{
-		{
-			Name: "情绪方面",
-			Desc: "情绪，是人受到情景刺激时产生的心理反应，以及伴随心理反应发生的生理变化、行为方式等。情绪对人的健康有很大影响，我国中医就有关于“怒伤肝、喜伤心、思伤脾、忧伤肺、恐伤肾”的理论。慢性疲劳通过破坏情绪的稳定和平衡而造成对人体健康的伤害。其危害性主要表现为：情绪不稳，暴躁，易怒，焦虑，紧张，恐惧等，有时自己不觉或难以控制，同时这些异常情绪的存在，还可以进一步导致失眠多梦，消化不良等。",
-		},
-		{
-			Name: "情绪方面",
-			Desc: "情绪，是人受到情景刺激时产生的心理反应，以及伴随心理反应发生的生理变化、行为方式等。情绪对人的健康有很大影响，我国中医就有关于“怒伤肝、喜伤心、思伤脾、忧伤肺、恐伤肾”的理论。慢性疲劳通过破坏情绪的稳定和平衡而造成对人体健康的伤害。其危害性主要表现为：情绪不稳，暴躁，易怒，焦虑，紧张，恐惧等，有时自己不觉或难以控制，同时这些异常情绪的存在，还可以进一步导致失眠多梦，消化不良等。",
-		},
-		{
-			Name: "情绪方面",
-			Desc: "情绪，是人受到情景刺激时产生的心理反应，以及伴随心理反应发生的生理变化、行为方式等。情绪对人的健康有很大影响，我国中医就有关于“怒伤肝、喜伤心、思伤脾、忧伤肺、恐伤肾”的理论。慢性疲劳通过破坏情绪的稳定和平衡而造成对人体健康的伤害。其危害性主要表现为：情绪不稳，暴躁，易怒，焦虑，紧张，恐惧等，有时自己不觉或难以控制，同时这些异常情绪的存在，还可以进一步导致失眠多梦，消化不良等。",
-		},
-	}
 
 	//报告固定部分
 	chroFatiSection1.Introduction = `中国健康教育协会在上海、深圳、北京等十大城市组织开展的慢性疲劳综合征初步调查显示：各城市人群的慢性疲劳综合征发病率在10%—25%之间。患病高危人群主要集中在教育业、服务业、IT、科研、金融等高压行业人群。
@@ -74,29 +59,59 @@ func GenerateStaffReportOfChronicFatigues(db *gorm.DB, ansarr map[string]int) (c
 	)
 	bodyDimDesc.Name = "体征方面慢性疲劳"
 	bodyDimDesc.DimDesc = "体征方面慢性疲劳的典型症状主要包括：体型容貌，过胖或过瘦；面容，容颜早衰，面色无华，过早出现面部皱纹或色素斑；肢体皮肤粗糙，干涩，脱屑较多；指（趾）甲失去正常的平滑与光泽；毛发脱落，蓬垢，易断，失光等。"
+	bodyDimDesc.SuggestDesc = `体重、面容面色的变化都是身心健康状况的综合体现，如短期内发生较大变化应提起注意。请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
 
 	sportDimDesc.Name = "运动方面慢性疲劳"
 	sportDimDesc.DimDesc = "运动系统方面慢性疲劳的典型症状主要包括： 全身疲惫，四肢乏力，周身不适，活动迟缓。有时可能出现类似感冒的症状，肌肉疼痛、关节痛等，如果时间较长，累积数月或数年，则表现得尤为明显，有重病缠身之感。"
+	sportDimDesc.SuggestDesc = `动养兼顾
+	人的健康是神与形有机结合的整体。所谓“动”就是指要积极参加力所能及的体育锻炼或体力劳动，这对从事脑力劳动的人更为重要。选择的形式可依个人兴趣和体质而定，运动量可逐渐递增且以第二天不感到无法恢复为宜。人们的运动类型可以分为3大类：有氧运动型、肌肉强健型以及敏健型。所谓有氧运动，是需要大量呼吸的运动，比如跑步、打球等；而肌肉强健型则是指一些能够强健肌肉的运动，仰卧运动、游泳等；敏健型运动则是帮助人体柔韧度的运动，比如弯腰运动等。最理想的当然是三种运动都进行，在不能达到的情况下有氧运动是最基本必须进行的运动。
+	所谓“养”则指闭目养神或打个盹之类的休息方法。一个人每一天的心理能量和生理能量都不是无限的，适时的养神调理，可以更有效的恢复精力。`
 
 	digestiveDimDesc.Name = "消化系统慢性疲劳"
 	digestiveDimDesc.DimDesc = "运动系统方面慢性疲劳的典型症状主要包括： 全身疲惫，四肢乏力，周身不适，活动迟缓。有时可能出现类似感冒的症状，肌肉疼痛、关节痛等，如果时间较长，累积数月或数年，则表现得尤为明显，有重病缠身之感。"
+	digestiveDimDesc.SuggestDesc = `合理饮食
+	餐食内容要合理搭配，营养均衡，勿暴饮暴食，大饥大饱，最好能做到定时定量。戒烟、戒咖啡：抽烟会阻碍氧气输送到各组织，其结果便是疲劳；咖啡虽能提神，但会消耗体内与神经、肌肉协调有关的维他命B群。 少吃甜食。糖分会过度激活胰岛素，使血糖变化，让人产生疲劳，坐立难安，还会引发肥胖问题。`
 
 	nervusDimDesc.Name = "神经系统慢性疲劳"
 	nervusDimDesc.DimDesc = "运动系统方面慢性疲劳的典型症状主要包括： 全身疲惫，四肢乏力，周身不适，活动迟缓。有时可能出现类似感冒的症状，肌肉疼痛、关节痛等，如果时间较长，累积数月或数年，则表现得尤为明显，有重病缠身之感。"
+	nervusDimDesc.SuggestDesc = `保障睡眠——正常成年人每天的睡眠时间应保证在不少于7小时。
+	提高睡眠质量——入睡困难、惊梦噩梦、早醒、睡眠轻浅等都属于睡眠障碍的表现，而诱因既有心因性，如：焦虑忧虑、恐惧、抑郁等；也有生理性，如：过劳、药物反应、器质性疾病症状等。
+	针对心因性睡眠障碍以下提供一个简单的放松方法，通过反复练习可以起到辅助入眠的作用。
+	1．完全放松的躺在床上伴随着有节奏的深呼吸做一段彻底的放松，从头到脚，放松身体的每一个部分。
+	2．开始集中注意力想象：自己正在下山或下楼，随着越走越低的步伐，开始倒数，如：100、99、98......
+	注意事项：
+	催眠方法需要反复练习，效果会逐渐明显。初始可能会难以集中注意力，一旦发现自己走神要及时纠正，集中注意是此段催眠的关键之一。`
 
 	genitourinaryDimDesc.Name = "泌尿生殖系统慢性疲劳"
 	genitourinaryDimDesc.DimDesc = "运动系统方面慢性疲劳的典型症状主要包括： 全身疲惫，四肢乏力，周身不适，活动迟缓。有时可能出现类似感冒的症状，肌肉疼痛、关节痛等，如果时间较长，累积数月或数年，则表现得尤为明显，有重病缠身之感。"
+	genitourinaryDimDesc.SuggestDesc = `慢性疲劳在泌尿生殖系统方面的典型症状已经可以看做是疾病的先兆，因此，请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
 
 	senseDimDesc.Name = "感官系统慢性疲劳"
 	senseDimDesc.DimDesc = "运动系统方面慢性疲劳的典型症状主要包括： 全身疲惫，四肢乏力，周身不适，活动迟缓。有时可能出现类似感冒的症状，肌肉疼痛、关节痛等，如果时间较长，累积数月或数年，则表现得尤为明显，有重病缠身之感。"
+	senseDimDesc.SuggestDesc = `慢性疲劳在感官系统方面的典型症状已经可以看作是疾病的先兆，因此，请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
 
 	mentalityDimDesc.Name = "心理方面慢性疲劳"
 	mentalityDimDesc.DimDesc = "运动系统方面慢性疲劳的典型症状主要包括： 全身疲惫，四肢乏力，周身不适，活动迟缓。有时可能出现类似感冒的症状，肌肉疼痛、关节痛等，如果时间较长，累积数月或数年，则表现得尤为明显，有重病缠身之感。"
+	mentalityDimDesc.SuggestDesc = `及时进行心理调试
+	人之所以感到疲劳，首先是情绪使我们的身体紧张，因此要善待压力，学会放松，让自我从紧张疲劳中解脱出来。
+	下页提供一个缓解疲劳的自我调节方法，反复练习效果更好。`
+
+	//获取每个维度的题目列表
+	var (
+		bodySubjects          []string
+		sportSubjects         []string
+		digestiveSubjects     []string
+		nervueSubjects        []string
+		genitourinarySubjects []string
+		senseSubjects         []string
+		mentalitySubjects     []string
+	)
 
 	for subjectID, answerID := range ansarr {
 		type Sort struct {
-			AnswerSort  int
 			SubjectSort int
+			AnswerSort  int
+			SubjectName string
 		}
 		var sort []Sort
 
@@ -104,83 +119,50 @@ func GenerateStaffReportOfChronicFatigues(db *gorm.DB, ansarr map[string]int) (c
 		if err := db.Debug().
 			Table("xy_subject a").
 			Joins("left join xy_subject_answer b on a.id = b.subject_id").
-			Select("a.sort as answer_sort,b.sort as subject_sort").
+			Select("a.sort as subject_sort,b.sort as answer_sort,a.subject_name").
 			Where("b.id = ? AND b.subject_id = ?", answerID, subID).
 			Scan(&sort).Error; err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:%s:Select Table xy_subject_answer error!", file, line, err)
 			return model.ChronicFatigueStaffReport{}, err
 		}
+		fmt.Printf("#@#@#@   sort is \n%v %v\n", sort, sort[0].AnswerSort)
 		if sort[0].AnswerSort == 1 {
 			chooseCount++
-			if sort[0].SubjectSort == 26 || sort[0].SubjectSort == 36 {
+			fmt.Printf("#@#@#@   chooseCount is \n%d\n", chooseCount)
+			if sort[0].SubjectSort == 18 || sort[0].SubjectSort == 24 {
 				bodyDimDesc.IsInclude = 1
-			} else if sort[0].SubjectSort == 4 || sort[0].SubjectSort == 8 || sort[0].SubjectSort == 12 || sort[0].SubjectSort == 16 {
+				bodySubjects = append(bodySubjects, sort[0].SubjectName)
+			} else if sort[0].SubjectSort == 3 || sort[0].SubjectSort == 6 ||
+				sort[0].SubjectSort == 8 || sort[0].SubjectSort == 12 {
 				//运动方面
-				bodyDimDesc.IsInclude = 1
-			} else if sort[0].SubjectSort == 5 || sort[0].SubjectSort == 6 {
+				sportDimDesc.IsInclude = 1
+				sportSubjects = append(sportSubjects, sort[0].SubjectName)
+			} else if sort[0].SubjectSort == 9 || sort[0].SubjectSort == 10 ||
+				sort[0].SubjectSort == 11 || sort[0].SubjectSort == 17 {
 				//消化系统
 				digestiveDimDesc.IsInclude = 1
-			} else if sort[0].SubjectSort == 7 || sort[0].SubjectSort == 9 {
+				digestiveSubjects = append(digestiveSubjects, sort[0].SubjectName)
+			} else if sort[0].SubjectSort == 1 || sort[0].SubjectSort == 13 || sort[0].SubjectSort == 14 ||
+				sort[0].SubjectSort == 15 || sort[0].SubjectSort == 20 {
 				//神经系统
 				nervusDimDesc.IsInclude = 1
-			} else if sort[0].SubjectSort == 14 || sort[0].SubjectSort == 11 {
+				nervueSubjects = append(nervueSubjects, sort[0].SubjectName)
+			} else if sort[0].SubjectSort == 21 || sort[0].SubjectSort == 25 {
 				//泌尿生殖系统
 				genitourinaryDimDesc.IsInclude = 1
-			} else if sort[0].SubjectSort == 18 || sort[0].SubjectSort == 19 {
+				genitourinarySubjects = append(genitourinarySubjects, sort[0].SubjectName)
+			} else if sort[0].SubjectSort == 22 || sort[0].SubjectSort == 23 {
 				//感官系统
 				senseDimDesc.IsInclude = 1
-			} else if sort[0].SubjectSort == 31 || sort[0].SubjectSort == 20 {
+				senseSubjects = append(senseSubjects, sort[0].SubjectName)
+			} else if sort[0].SubjectSort == 2 || sort[0].SubjectSort == 4 || sort[0].SubjectSort == 5 ||
+				sort[0].SubjectSort == 7 || sort[0].SubjectSort == 16 {
 				//心理
 				mentalityDimDesc.IsInclude = 1
+				mentalitySubjects = append(mentalitySubjects, sort[0].SubjectName)
 			}
 		}
-	}
-
-	chroFatiDimDescs = append(chroFatiDimDescs,
-		bodyDimDesc, sportDimDesc, digestiveDimDesc, nervusDimDesc, genitourinaryDimDesc, senseDimDesc, mentalityDimDesc)
-
-	chroFatiSection3.SuggestDesc = `本检测着力于提示您关注心身健康状况，如有明显症状表现请遵循“医学治疗优先”原则，首先就医治疗，在排除生理疾病因素后，应结合心理调节有效改善心身状况。`
-	if bodyDimDesc.IsInclude == 1 {
-		var suggest model.ChronicFatigueNormDescribe
-		suggest.Name = "体征方面"
-		suggest.Desc = `体重、面容面色的变化都是身心健康状况的综合体现，如短期内发生较大变化应提起注意。请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
-		chroFatiSection3.Suggests = append(chroFatiSection3.Suggests, suggest)
-	} else if sportDimDesc.IsInclude == 1 {
-		var suggest model.ChronicFatigueNormDescribe
-		suggest.Name = "运动方面"
-		suggest.Desc = `体重、面容面色的变化都是身心健康状况的综合体现，如短期内发生较大变化应提起注意。请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
-		chroFatiSection3.Suggests = append(chroFatiSection3.Suggests, suggest)
-	} else if digestiveDimDesc.IsInclude == 1 {
-		var suggest model.ChronicFatigueNormDescribe
-		suggest.Name = "消化系统方面"
-		suggest.Desc = `体重、面容面色的变化都是身心健康状况的综合体现，如短期内发生较大变化应提起注意。请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
-		chroFatiSection3.Suggests = append(chroFatiSection3.Suggests, suggest)
-
-	} else if nervusDimDesc.IsInclude == 1 {
-		var suggest model.ChronicFatigueNormDescribe
-		suggest.Name = "神经系统方面"
-		suggest.Desc = `体重、面容面色的变化都是身心健康状况的综合体现，如短期内发生较大变化应提起注意。请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
-		chroFatiSection3.Suggests = append(chroFatiSection3.Suggests, suggest)
-
-	} else if genitourinaryDimDesc.IsInclude == 1 {
-		var suggest model.ChronicFatigueNormDescribe
-		suggest.Name = "泌尿生殖系统方面"
-		suggest.Desc = `体重、面容面色的变化都是身心健康状况的综合体现，如短期内发生较大变化应提起注意。请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
-		chroFatiSection3.Suggests = append(chroFatiSection3.Suggests, suggest)
-
-	} else if senseDimDesc.IsInclude == 1 {
-		var suggest model.ChronicFatigueNormDescribe
-		suggest.Name = "感官系统方面"
-		suggest.Desc = `体重、面容面色的变化都是身心健康状况的综合体现，如短期内发生较大变化应提起注意。请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
-		chroFatiSection3.Suggests = append(chroFatiSection3.Suggests, suggest)
-
-	} else if mentalityDimDesc.IsInclude == 1 {
-		var suggest model.ChronicFatigueNormDescribe
-		suggest.Name = "心理方面"
-		suggest.Desc = `体重、面容面色的变化都是身心健康状况的综合体现，如短期内发生较大变化应提起注意。请首先结合症状，及时就医，同时调整生活、工作的节奏。身心放松、健康才能够更好的发挥所长，事半功倍。`
-		chroFatiSection3.Suggests = append(chroFatiSection3.Suggests, suggest)
-
 	}
 
 	//总测试情况
@@ -207,12 +189,24 @@ func GenerateStaffReportOfChronicFatigues(db *gorm.DB, ansarr map[string]int) (c
 		return model.ChronicFatigueStaffReport{}, err
 	}
 
+	//写入各个维度的题目列表
+	bodyDimDesc.SubjectNames = bodySubjects
+	sportDimDesc.SubjectNames = sportSubjects
+	digestiveDimDesc.SubjectNames = digestiveSubjects
+	nervusDimDesc.SubjectNames = nervueSubjects
+	genitourinaryDimDesc.SubjectNames = genitourinarySubjects
+	senseDimDesc.SubjectNames = senseSubjects
+	mentalityDimDesc.SubjectNames = mentalitySubjects
+
+	chroFatiDimDescs = append(chroFatiDimDescs,
+		bodyDimDesc, sportDimDesc, digestiveDimDesc, nervusDimDesc, genitourinaryDimDesc, senseDimDesc, mentalityDimDesc)
+
 	chroFatiSection2.DimensionInfo = chroFatiDimDescs
 
 	chroFatiStaRe.Section1 = chroFatiSection1
 	chroFatiStaRe.Section2 = chroFatiSection2
-	chroFatiStaRe.Section3 = chroFatiSection3
+	// chroFatiStaRe.Section3 = chroFatiSection3
 	//chroFatiStaRe.TemplateID = 5
-
-	return model.ChronicFatigueStaffReport{}, nil
+	fmt.Printf("@#@#@#@  chroFatiStaRe is \n %v", chroFatiStaRe)
+	return chroFatiStaRe, nil
 }

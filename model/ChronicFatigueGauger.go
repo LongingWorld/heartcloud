@@ -4,7 +4,7 @@ package model
 type ChronicFatigueStaffReport struct {
 	Section1 ChronicFatigueSection1 `json:"Section1"`
 	Section2 ChronicFatigueSection2 `json:"Section2"`
-	Section3 ChronicFatigueSection3 `json:"Section3"`
+	//Section3 ChronicFatigueSection3 `json:"Section3"`
 	//TemplateID int                    `json:"template_id"`
 }
 
@@ -16,17 +16,17 @@ type ChronicFatigueSection1 struct {
 
 /*ChronicFatigueSection2 is*/
 type ChronicFatigueSection2 struct {
-	AccordItemNum          int                           `json:"accord_item_num"`
-	AccordExplain          string                        `json:"accord_explain"`
-	DimensionInfo          []ChronicFatigueDimensionDesc `json:"dimension_info"`
-	ChronicFatigueEndanger []ChronicFatigueNormDescribe  `json:"chronic_fatigue_endanger"`
+	AccordItemNum int                           `json:"accord_item_num"`
+	AccordExplain string                        `json:"accord_explain"`
+	DimensionInfo []ChronicFatigueDimensionDesc `json:"dimension_info"`
+	//ChronicFatigueEndanger []ChronicFatigueNormDescribe  `json:"chronic_fatigue_endanger"`
 }
 
-/*ChronicFatigueSection3 is*/
-type ChronicFatigueSection3 struct {
-	SuggestDesc string                       `json:"suggest_desc"`
-	Suggests    []ChronicFatigueNormDescribe `json:"suggests"`
-}
+// /*ChronicFatigueSection3 is*/
+// type ChronicFatigueSection3 struct {
+// 	SuggestDesc string                       `json:"suggest_desc"`
+// 	Suggests    []ChronicFatigueNormDescribe `json:"suggests"`
+// }
 
 /*ChronicFatigueNormDescribe is */
 type ChronicFatigueNormDescribe struct {
@@ -36,7 +36,9 @@ type ChronicFatigueNormDescribe struct {
 
 /*ChronicFatigueDimensionDesc is*/
 type ChronicFatigueDimensionDesc struct {
-	Name      string `json:"name"`
-	IsInclude int    `json:"is_include"`
-	DimDesc   string `json:"dim_desc"`
+	Name         string   `json:"name"`
+	IsInclude    int      `json:"is_include"`
+	DimDesc      string   `json:"dim_desc"`
+	SuggestDesc  string   `json:"suggest_desc"`
+	SubjectNames []string `json:"field"`
 }

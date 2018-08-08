@@ -586,7 +586,7 @@ func GenerateStaffReport(c *gin.Context) {
 	}
 
 	/*更新员工报告report_staff答题得分*/
-	if err := tx.Table("xy_report_staff").
+	if err := tx.Debug().Table("xy_report_staff").
 		Where("id = ?", reportStaff.ID).
 		Update("total_score", totalScore[0]).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
@@ -596,7 +596,7 @@ func GenerateStaffReport(c *gin.Context) {
 		return
 	}
 	/*更新员工答题表xy_staff_answer得分*/
-	if err := tx.Table("xy_staff_answer").
+	if err := tx.Debug().Table("xy_staff_answer").
 		Where("id = ?", staffAnsID).
 		Update("score", totalScore[0]).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
