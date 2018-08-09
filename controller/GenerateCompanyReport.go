@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"heartcloud/database"
 	"heartcloud/model"
 	"log"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 /*AnswersCount is the struct of Statistics of answers*/
@@ -27,13 +27,13 @@ type AnswersCount struct {
 func GenerateCompanyReport(c *gin.Context) {
 	fmt.Println("@@@@@@@GenerateCompanyReport()Begin@@@@@@@")
 	//验证登录Token信息，并获取用户信息
-	companyInfo, err := verifyToken(c)
+	/* companyInfo, err := verifyToken(c)
 	if err != nil {
 		log.Printf("验证Token信息失败！\n")
 		c.JSON(500, "Token失效")
 		return
 	}
-	fmt.Println(companyInfo)
+	fmt.Println(companyInfo) */
 	/* companyName, ok := companyInfo["name"].(string)
 	if !ok {
 		fmt.Println("errors what!?")
@@ -71,7 +71,7 @@ func GenerateCompanyReport(c *gin.Context) {
 	}
 	fmt.Printf("@@@@@@   gaugeIDs is %v\n", gaugeIDs)
 	//连接数据库
-	db := ConnectDataBase()
+	db := database.ConnectDataBase()
 	/*关闭连接数据库*/
 	defer db.Close()
 
@@ -179,18 +179,4 @@ func GenerateCompanyReport(c *gin.Context) {
 	c.JSON(http.StatusOK, "success")
 	fmt.Println("@@@@@@@GenerateCompanyReport()end@@@@@@@")
 	return
-}
-
-/*ConnectDataBase : Use the function to connect database */
-func ConnectDataBase() *gorm.DB {
-	/*连接数据库*/
-	db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/xyxjdata?charset=utf8&parseTime=true&loc=Local")
-	if err != nil {
-		panic("failed to connect database")
-	}
-	// 全局禁用表名复数
-	db.SingularTable(true)
-	/*关闭连接数据库*/
-	//defer db.Close()
-	return db
 }

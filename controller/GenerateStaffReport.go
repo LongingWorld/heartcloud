@@ -2,21 +2,18 @@ package controller
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
 	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
+	"heartcloud/database"
 	"heartcloud/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gomodule/redigo/redis"
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" //mysql驱动
 )
 
@@ -24,13 +21,15 @@ import (
 func GenerateStaffReport(c *gin.Context) {
 	fmt.Println("@@@@@@@Start@@@@@@@")
 
-	//验证登录Token信息，并获取用户信息
+	/* //验证登录Token信息，并获取用户信息
 	staffInfo, err := verifyToken(c)
 	if err != nil {
 		log.Printf("验证Token信息失败！\n")
 		c.JSON(http.StatusBadGateway, "Token失效")
 		return
-	}
+	} */
+	//获取客户端用户信息
+	staffInfo := c.Keys
 	staffID := int(staffInfo["staff_id"].(float64))
 	/* if !ok {
 		fmt.Println("errors what!?")
@@ -41,13 +40,14 @@ func GenerateStaffReport(c *gin.Context) {
 
 	/*连接数据库*/
 	// db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/xyxj2018?charset=utf8&parseTime=true&loc=Local")
-	db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/xyxjdata?charset=utf8&parseTime=true&loc=Local")
-	if err != nil {
-		panic("failed to connect database")
-	}
-	// 全局禁用表名复数
-	db.SingularTable(true)
-	/*关闭连接数据库*/
+	// db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/xyxjdata?charset=utf8&parseTime=true&loc=Local")
+	// if err != nil {
+	// 	panic("failed to connect database")
+	// }
+	// // 全局禁用表名复数
+	// db.SingularTable(true)
+	// /*关闭连接数据库*/
+	db := database.ConnectDataBase()
 	defer db.Close()
 
 	var gauge model.Gauge
@@ -612,69 +612,6 @@ func GenerateStaffReport(c *gin.Context) {
 	tx.Commit()
 	c.JSON(http.StatusOK, "success")
 	return
-}
-
-//用户信息验证Token
-func verifyToken(c *gin.Context) (map[string]interface{}, error) {
-	/*读取redis获取token,通过token匹配用户信息BEGIN*/
-	//获取Token
-	authorization := c.GetHeader("Authorization")
-	fmt.Printf("@@@@@@@   authorization is :%s\n", authorization)
-	tokenKey := model.AccessTokenPrefix + authorization
-	//连接Redis
-	conRedis, err := redis.Dial("tcp", "127.0.0.1:6379")
-	if err != nil {
-		fmt.Println("Connect to redis error", err)
-		return nil, err
-	}
-	defer conRedis.Close()
-	keyInfo, err := redis.Bytes(conRedis.Do("Get", tokenKey)) //获取客户端缓存信息
-	if err != nil {
-		log.Printf("登录信息已过期，请重新登陆！\n")
-		return nil, err
-	}
-	fmt.Printf("@@@@@@   客户端信息:%v\n", keyInfo)
-
-	var clientInfo map[string]interface{}
-	err = json.Unmarshal(keyInfo, &clientInfo) //解析JSON字符串信息
-	if err != nil {
-		fmt.Printf("Unmarshal JSON error : %s\n", err)
-		return nil, err
-	}
-	fmt.Println("####getkey ::", clientInfo)
-
-	//获取缓存token
-	cacheToken := clientInfo["access_token"]
-	switch token := cacheToken.(type) {
-	case string:
-		if strings.Compare(token, authorization) != 0 {
-			log.Printf("登录信息验证错误,请重新登录！\n")
-			return nil, errors.New("登录信息验证错误,请重新登录！")
-		}
-	}
-
-	//获取token过期时间(过期后无法得到token)
-	// tokenExpireTime := clientInfo["expires_time"]
-	/* isStaffInfo := clientInfo["client"]
-	switch i := isStaffInfo.(type) { //switch type assertion
-	case interface{}:
-		fmt.Println("hahahahhaha", i)
-	case map[string]interface{}:
-		fmt.Println("map[string]interface{}", i)
-	}
-	fmt.Println(isStaffInfo) */
-	// 获取员工登陆信息
-	staffInfo, ok := clientInfo["client"].(map[string]interface{})
-	if ok { //type assertion
-		fmt.Println(staffInfo["staff_id"])
-		fmt.Println(staffInfo["name"])
-		fmt.Println(staffInfo["phone"])
-		fmt.Println(staffInfo["company_id"])
-		fmt.Println(staffInfo["company_name"])
-	}
-
-	/*读取redis获取token,通过token匹配用户信息END*/
-	return staffInfo, nil
 }
 
 /*获取map中的key值，并存放在slice中*/
