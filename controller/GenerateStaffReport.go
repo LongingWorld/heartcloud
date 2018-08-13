@@ -547,6 +547,25 @@ func GenerateStaffReport(c *gin.Context) {
 		}
 		reportStaffData.ReportData = string(chroFatiDetail)
 		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
+	} else if gauge.TemplateID == 6 {
+		egoStateDetails, err := GenerateStaffReportOfEgoState(tx, subjectsAnswersArr)
+		if err != nil {
+			_, file, line, _ := runtime.Caller(0)
+			log.Printf("%s:%d:生成自我状态报告失败 error!", file, line)
+			//回滚事务
+			tx.Rollback()
+		}
+		fmt.Printf("######    EgoStateDetails \n  %v\n", egoStateDetails)
+		/*转换JSON*/
+		egoStateDetail, err := json.Marshal(egoStateDetails)
+		if err != nil {
+			log.Println("Marshal JSON字符串错！")
+			//回滚事务
+			tx.Rollback()
+			return
+		}
+		reportStaffData.ReportData = string(egoStateDetail)
+		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 	} else {
 		log.Printf("%d未知的模板报告！", gauge.TemplateID)
 	}
