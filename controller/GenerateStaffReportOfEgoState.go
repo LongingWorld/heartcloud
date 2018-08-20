@@ -97,6 +97,7 @@ func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int) (egoState
 		rebelBehave     []rune
 		rebelBehaveLess []rune
 	)
+	//定义是否存在“总是”、“经常”选项的标志
 	var (
 		posConAlwaysNum, negConAlwaysNum, posCareAlwaysNum, negCareAlwaysNum, adultAlwaysNum,
 		posObeyAlwaysNum, negObeyAlwaysNum, posFreeAlwaysNum, negFreeAlwaysNum, rebelAlwaysNum = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
@@ -189,163 +190,55 @@ func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int) (egoState
 	ParentEgoStaInfo.Name = egoParGauge.EgoBriefName
 	ParentEgoStaInfo.Introduce = egoParGauge.EgoBriefInfo
 	//正面控制型父母状态明细
-	if controlModel.PositiveScore == 0 {
-		PosControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosConParent, 0, 0, posConAlwaysNum,
-			string(posControlBehave), string(posControlBehaveLess), egoPosConGauge, controlModel.PositiveScore, db)
-		// if err := db.Debug().Table("xy_ego_state_info").Select("*").
-		// 	Where("ego_id = ? AND ego_name = ? AND ego_min = ? AND ego_max = ? AND ego_sqe = ?", egoParent, egoPosConParent, 0, 0, 0).
-		// 	Scan(&egoPosConGauge).Error; err != nil {
-		// 	_, file, line, _ := runtime.Caller(0)
-		// 	log.Printf("%s:%d:%s:Select Table xy_ego_state_info error!", file, line, err)
-		// 	return model.EgoState{}, err
-		// }
-		// PosControlParInfo.EgoStateName = egoPosConGauge.EgoBriefName
-		// PosControlParInfo.EgoDesc = fmt.Sprintf("%s__%d__,%s", egoPosConGauge.EgoResultBegin, controlModel.PositiveScore, egoPosConGauge.EgoResultEnd)
-		// PosControlParInfo.EgoDetail = egoPosConGauge.EgoBriefInfo
-	} else if controlModel.PositiveScore > 0 && controlModel.PositiveScore <= 5 {
-		PosControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosConParent, 1, 5, posConAlwaysNum,
-			string(posControlBehave), string(posControlBehaveLess), egoPosConGauge, controlModel.PositiveScore, db)
-	} else if controlModel.PositiveScore > 5 && controlModel.PositiveScore <= 11 {
-		PosControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosConParent, 6, 11, posConAlwaysNum,
-			string(posControlBehave), string(posControlBehaveLess), egoPosConGauge, controlModel.PositiveScore, db)
-	} else if controlModel.PositiveScore > 11 && controlModel.PositiveScore <= 20 {
-		PosControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosConParent, 12, 20, posConAlwaysNum,
-			string(posControlBehave), string(posControlBehaveLess), egoPosConGauge, controlModel.PositiveScore, db)
-	}
+	PosControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosConParent, posConAlwaysNum,
+		string(posControlBehave), string(posControlBehaveLess), egoPosConGauge, controlModel.PositiveScore, db)
+	// if err := db.Debug().Table("xy_ego_state_info").Select("*").
+	// 	Where("ego_id = ? AND ego_name = ? AND ego_min = ? AND ego_max = ? AND ego_sqe = ?", egoParent, egoPosConParent, 0, 0, 0).
+	// 	Scan(&egoPosConGauge).Error; err != nil {
+	// 	_, file, line, _ := runtime.Caller(0)
+	// 	log.Printf("%s:%d:%s:Select Table xy_ego_state_info error!", file, line, err)
+	// 	return model.EgoState{}, err
+	// }
+	// PosControlParInfo.EgoStateName = egoPosConGauge.EgoBriefName
+	// PosControlParInfo.EgoDesc = fmt.Sprintf("%s__%d__,%s", egoPosConGauge.EgoResultBegin, controlModel.PositiveScore, egoPosConGauge.EgoResultEnd)
+	// PosControlParInfo.EgoDetail = egoPosConGauge.EgoBriefInfo
+
 	//负面控制型父母状态明细
-	if controlModel.NegativeScore == 0 {
-		NegControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegConParent, 0, 0, negConAlwaysNum,
-			string(negControlBehave), string(negControlBehaveLess), egoNegConGauge, controlModel.NegativeScore, db)
-	} else if controlModel.NegativeScore < 0 && controlModel.NegativeScore >= -5 {
-		NegControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegConParent, 1, 5, negConAlwaysNum,
-			string(negControlBehave), string(negControlBehaveLess), egoNegConGauge, controlModel.NegativeScore, db)
-	} else if controlModel.NegativeScore < -5 && controlModel.NegativeScore >= -11 {
-		NegControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegConParent, 6, 11, negConAlwaysNum,
-			string(negControlBehave), string(negControlBehaveLess), egoNegConGauge, controlModel.NegativeScore, db)
-	} else if controlModel.NegativeScore < -11 && controlModel.NegativeScore >= -20 {
-		NegControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegConParent, 12, 20, negConAlwaysNum,
-			string(negControlBehave), string(negControlBehaveLess), egoNegConGauge, controlModel.NegativeScore, db)
-	}
+	NegControlParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegConParent, negConAlwaysNum,
+		string(negControlBehave), string(negControlBehaveLess), egoNegConGauge, controlModel.NegativeScore, db)
 
 	//正面照顾型父母状态明细
-	if takeCareModel.PositiveScore == 0 {
-		PosCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosCareParent, 0, 0, posCareAlwaysNum,
-			string(posCareBehave), string(posCareBehaveLess), egoPosCareGauge, takeCareModel.PositiveScore, db)
-	} else if takeCareModel.PositiveScore > 0 && takeCareModel.PositiveScore <= 5 {
-		PosCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosCareParent, 1, 5, posCareAlwaysNum,
-			string(posCareBehave), string(posCareBehaveLess), egoPosCareGauge, takeCareModel.PositiveScore, db)
-	} else if takeCareModel.PositiveScore > 5 && takeCareModel.PositiveScore <= 11 {
-		PosCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosCareParent, 6, 11, posCareAlwaysNum,
-			string(posCareBehave), string(posCareBehaveLess), egoPosCareGauge, takeCareModel.PositiveScore, db)
-	} else if takeCareModel.PositiveScore > 11 && takeCareModel.PositiveScore <= 20 {
-		PosCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosCareParent, 12, 20, posCareAlwaysNum,
-			string(posCareBehave), string(posCareBehaveLess), egoPosCareGauge, takeCareModel.PositiveScore, db)
-	}
+	PosCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoPosCareParent, posCareAlwaysNum,
+		string(posCareBehave), string(posCareBehaveLess), egoPosCareGauge, takeCareModel.PositiveScore, db)
 
 	//负面照顾型父母状态明细
-	if takeCareModel.NegativeScore == 0 {
-		NegCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegCareParent, 0, 0, negCareAlwaysNum,
-			string(negCareBehave), string(negCareBehaveLess), egoNegCareGauge, takeCareModel.NegativeScore, db)
-	} else if takeCareModel.NegativeScore < 0 && takeCareModel.NegativeScore >= -5 {
-		NegCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegCareParent, 1, 5, negCareAlwaysNum,
-			string(negCareBehave), string(negCareBehaveLess), egoNegCareGauge, takeCareModel.NegativeScore, db)
-	} else if takeCareModel.NegativeScore < -5 && takeCareModel.NegativeScore >= -11 {
-		NegCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegCareParent, 6, 11, negCareAlwaysNum,
-			string(negCareBehave), string(negCareBehaveLess), egoNegCareGauge, takeCareModel.NegativeScore, db)
-	} else if takeCareModel.NegativeScore < -11 && takeCareModel.NegativeScore >= -20 {
-		NegCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegCareParent, 12, 20, negCareAlwaysNum,
-			string(negCareBehave), string(negCareBehaveLess), egoNegCareGauge, takeCareModel.NegativeScore, db)
-	}
+	NegCareParInfo, _ = GetStaffEgoStateDetails(egoParent, egoNegCareParent, negCareAlwaysNum,
+		string(negCareBehave), string(negCareBehaveLess), egoNegCareGauge, takeCareModel.NegativeScore, db)
 
 	//成人状态明细
-	if adultModel.PositiveScore == 0 {
-		PosAdultInfo, _ = GetStaffEgoStateDetails(egoAdult, egoAdultDetail, 0, 0, adultAlwaysNum,
-			string(adultBehave), string(adultBehaveLess), egoAdultGauge, adultModel.PositiveScore, db)
-	} else if adultModel.PositiveScore > 0 && adultModel.PositiveScore <= 5 {
-		PosAdultInfo, _ = GetStaffEgoStateDetails(egoAdult, egoAdultDetail, 1, 5, adultAlwaysNum,
-			string(adultBehave), string(adultBehaveLess), egoAdultGauge, adultModel.PositiveScore, db)
-	} else if adultModel.PositiveScore > 5 && adultModel.PositiveScore <= 11 {
-		PosAdultInfo, _ = GetStaffEgoStateDetails(egoAdult, egoAdultDetail, 6, 11, adultAlwaysNum,
-			string(adultBehave), string(adultBehaveLess), egoAdultGauge, adultModel.PositiveScore, db)
-	} else if adultModel.PositiveScore > 11 && adultModel.PositiveScore <= 20 {
-		PosAdultInfo, _ = GetStaffEgoStateDetails(egoAdult, egoAdultDetail, 12, 20, adultAlwaysNum,
-			string(adultBehave), string(adultBehaveLess), egoAdultGauge, adultModel.PositiveScore, db)
-	}
+	PosAdultInfo, _ = GetStaffEgoStateDetails(egoAdult, egoAdultDetail, adultAlwaysNum,
+		string(adultBehave), string(adultBehaveLess), egoAdultGauge, adultModel.PositiveScore, db)
 
 	//正面自由型儿童状态明细
-	if freedomChildModel.PositiveScore == 0 {
-		PosFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosFreeChild, 0, 0, posFreeAlwaysNum,
-			string(posFreeBehave), string(posFreeBehaveLess), egoPosFreeGauge, freedomChildModel.PositiveScore, db)
-	} else if freedomChildModel.PositiveScore > 0 && freedomChildModel.PositiveScore <= 5 {
-		PosFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosFreeChild, 1, 5, posFreeAlwaysNum,
-			string(posFreeBehave), string(posFreeBehaveLess), egoPosFreeGauge, freedomChildModel.PositiveScore, db)
-	} else if freedomChildModel.PositiveScore > 5 && freedomChildModel.PositiveScore <= 11 {
-		PosFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosFreeChild, 6, 11, posFreeAlwaysNum,
-			string(posFreeBehave), string(posFreeBehaveLess), egoPosFreeGauge, freedomChildModel.PositiveScore, db)
-	} else if freedomChildModel.PositiveScore > 11 && freedomChildModel.PositiveScore <= 20 {
-		PosFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosFreeChild, 12, 20, posFreeAlwaysNum,
-			string(posFreeBehave), string(posFreeBehaveLess), egoPosFreeGauge, freedomChildModel.PositiveScore, db)
-	}
+	PosFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosFreeChild, posFreeAlwaysNum,
+		string(posFreeBehave), string(posFreeBehaveLess), egoPosFreeGauge, freedomChildModel.PositiveScore, db)
 
 	//负面自由型儿童状态明细
-	if freedomChildModel.NegativeScore == 0 {
-		NegFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegFreeChild, 0, 0, negFreeAlwaysNum,
-			string(negFreeBehave), string(negFreeBehaveLess), egoNegFreeGauge, freedomChildModel.NegativeScore, db)
-	} else if freedomChildModel.NegativeScore < 0 && freedomChildModel.NegativeScore >= -5 {
-		NegFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegFreeChild, 1, 5, negFreeAlwaysNum,
-			string(negFreeBehave), string(negFreeBehaveLess), egoNegFreeGauge, freedomChildModel.NegativeScore, db)
-	} else if freedomChildModel.NegativeScore < -5 && freedomChildModel.NegativeScore >= -11 {
-		NegFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegFreeChild, 6, 11, negFreeAlwaysNum,
-			string(negFreeBehave), string(negFreeBehaveLess), egoNegFreeGauge, freedomChildModel.NegativeScore, db)
-	} else if freedomChildModel.NegativeScore < -11 && freedomChildModel.NegativeScore >= -20 {
-		NegFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegFreeChild, 12, 20, negFreeAlwaysNum,
-			string(negFreeBehave), string(negFreeBehaveLess), egoNegFreeGauge, freedomChildModel.NegativeScore, db)
-	}
+	NegFreeChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegFreeChild, negFreeAlwaysNum,
+		string(negFreeBehave), string(negFreeBehaveLess), egoNegFreeGauge, freedomChildModel.NegativeScore, db)
 
 	//正面顺从型儿童状态明细
-	if obeyChildModel.PositiveScore == 0 {
-		PosObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosObeyChild, 0, 0, posObeyAlwaysNum,
-			string(posObeyBehave), string(posObeyBehaveLess), egoPosObeyGauge, obeyChildModel.PositiveScore, db)
-	} else if obeyChildModel.PositiveScore > 0 && obeyChildModel.PositiveScore <= 5 {
-		PosObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosObeyChild, 0, 0, posObeyAlwaysNum,
-			string(posObeyBehave), string(posObeyBehaveLess), egoPosObeyGauge, obeyChildModel.PositiveScore, db)
-	} else if obeyChildModel.PositiveScore > 5 && obeyChildModel.PositiveScore <= 11 {
-		PosObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosObeyChild, 6, 11, posObeyAlwaysNum,
-			string(posObeyBehave), string(posObeyBehaveLess), egoPosObeyGauge, obeyChildModel.PositiveScore, db)
-	} else if obeyChildModel.PositiveScore > 11 && obeyChildModel.PositiveScore <= 20 {
-		PosObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosObeyChild, 12, 20, posObeyAlwaysNum,
-			string(posObeyBehave), string(posObeyBehaveLess), egoPosObeyGauge, obeyChildModel.PositiveScore, db)
-	}
+	PosObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoPosObeyChild, posObeyAlwaysNum,
+		string(posObeyBehave), string(posObeyBehaveLess), egoPosObeyGauge, obeyChildModel.PositiveScore, db)
 
 	//负面顺从型儿童状态明细
-	if obeyChildModel.NegativeScore == 0 {
-		NegObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegObeyChild, 0, 0, negObeyAlwaysNum,
-			string(negObeyBehave), string(negObeyBehaveLess), egoNegObeyGauge, obeyChildModel.NegativeScore, db)
-	} else if obeyChildModel.NegativeScore < 0 && obeyChildModel.NegativeScore >= -5 {
-		NegObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegObeyChild, 1, 5, negObeyAlwaysNum,
-			string(negObeyBehave), string(negObeyBehaveLess), egoNegObeyGauge, obeyChildModel.NegativeScore, db)
-	} else if obeyChildModel.NegativeScore < -5 && obeyChildModel.NegativeScore >= -11 {
-		NegObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegObeyChild, 6, 11, negObeyAlwaysNum,
-			string(negObeyBehave), string(negObeyBehaveLess), egoNegObeyGauge, obeyChildModel.NegativeScore, db)
-	} else if obeyChildModel.NegativeScore < -11 && obeyChildModel.NegativeScore >= -20 {
-		NegObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegObeyChild, 12, 20, negObeyAlwaysNum,
-			string(negObeyBehave), string(negObeyBehaveLess), egoNegObeyGauge, obeyChildModel.NegativeScore, db)
-	}
+
+	NegObeyChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoNegObeyChild, negObeyAlwaysNum,
+		string(negObeyBehave), string(negObeyBehaveLess), egoNegObeyGauge, obeyChildModel.NegativeScore, db)
 
 	//叛逆型儿童状态明细
-	if rebelChildModel.NegativeScore == 0 {
-		NegRebelChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoRebelChild, 0, 0, rebelAlwaysNum,
-			string(rebelBehave), string(rebelBehaveLess), egoRebelGauge, rebelChildModel.NegativeScore, db)
-	} else if rebelChildModel.NegativeScore < 0 && rebelChildModel.NegativeScore >= -5 {
-		NegRebelChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoRebelChild, 0, 0, rebelAlwaysNum,
-			string(rebelBehave), string(rebelBehaveLess), egoRebelGauge, rebelChildModel.NegativeScore, db)
-	} else if rebelChildModel.NegativeScore < -5 && rebelChildModel.NegativeScore >= -11 {
-		NegRebelChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoRebelChild, 0, 0, rebelAlwaysNum,
-			string(rebelBehave), string(rebelBehaveLess), egoRebelGauge, rebelChildModel.NegativeScore, db)
-	} else if rebelChildModel.NegativeScore < -11 && rebelChildModel.NegativeScore >= -20 {
-		NegRebelChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoRebelChild, 0, 0, rebelAlwaysNum,
-			string(rebelBehave), string(rebelBehaveLess), egoRebelGauge, rebelChildModel.NegativeScore, db)
-	}
+	NegRebelChildInfo, _ = GetStaffEgoStateDetails(egoChild, egoRebelChild, rebelAlwaysNum,
+		string(rebelBehave), string(rebelBehaveLess), egoRebelGauge, rebelChildModel.NegativeScore, db)
 
 	//父母、成人、儿童状态 正面及负面状态明细获取
 	ControParEgoInfo.Name = egoParGauge.EgoAlwaysTitle //控制型父母自我状态
