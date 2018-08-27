@@ -36,6 +36,7 @@ func GetStaffEgoStateDetails(id, name string, flag int, behave, behaveLess strin
 		log.Printf("%s:%d:%s:Select Table xy_ego_state_info error!", file, line, err)
 		return model.EgoStateDesc{}, err
 	}
+	fmt.Printf("$#$#$#$ Get xy_ego_state_info is %v,%v\n", table.EgoID, table.EgoName)
 	detail.EgoStateName = table.EgoBriefName
 	detail.EgoDesc = fmt.Sprintf("%s__%d__,%s", table.EgoResultBegin, stateScore, table.EgoResultEnd)
 	detail.EgoDetail = fmt.Sprintf("%s%s%s%s%s%s", table.EgoAlwaysTitle, behave,

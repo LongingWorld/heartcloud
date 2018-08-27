@@ -51,7 +51,9 @@ func verifyToken(c *gin.Context) (map[string]interface{}, error) {
 	/*读取redis获取token,通过token匹配用户信息BEGIN*/
 	//获取Token
 	authorization := c.GetHeader("Authorization")
-	fmt.Printf("@@@@@@@   authorization is :%s\n", authorization)
+	fmt.Printf("Headers is %v\n", c.Request.Header)
+	// authorization := c.Request.Header.Get("authorization")
+	fmt.Printf("@@@@@@@  1 23 authorization is :%s\n", authorization)
 	tokenKey := model.AccessTokenPrefix + authorization
 	//连接Redis
 	conRedis, err := redis.Dial("tcp", config.RedisHost+config.RedisPort)

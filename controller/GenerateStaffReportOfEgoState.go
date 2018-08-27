@@ -14,7 +14,7 @@ import (
 var (
 	egoStateSorce         = make([]int, 54)
 	egoStateSubjectAnswer = make([]int, 54)
-	egoStateSubjectName   = make([]string, 54)
+	egoStateSubjectName   = make([]string, 55)
 )
 
 const (
@@ -119,18 +119,20 @@ func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int) (egoState
 		if err := db.Debug().
 			Table("xy_subject a").
 			Joins("left join xy_subject_answer b on a.id = b.subject_id").
-			Select("a.sort as subject_sort,a.name as subject_name,b.sort as answer_sort,b.fraction").
+			Select("a.sort as subject_sort,a.subject_name as subject_name,b.sort as answer_sort,b.fraction").
 			Where("b.id = ? AND b.subject_id = ?", answerID, subID).
 			Scan(&egoStateRes).Error; err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:%s:Select Table xy_subject_answer error!", file, line, err)
 			return model.EgoState{}, err
 		}
+		fmt.Println("out of range!")
+		fmt.Printf("Length is %d,length is %d subID is %d answerID is %d \n", len(egoStateSorce), len(egoStateRes), subID, answerID)
 		//store the answer score of the subject
 		egoStateSorce[egoStateRes[0].SubjectSort] = egoStateRes[0].AnswerScore
 		egoStateSubjectAnswer[egoStateRes[0].SubjectSort] = egoStateRes[0].AnswerSort
 		egoStateSubjectName[egoStateRes[0].SubjectSort] = egoStateRes[0].SubjectName
-
+		fmt.Println("out of range!")
 		egoStatetmp := substring('?', []rune(egoStateRes[0].SubjectName))
 
 		//获取选择答案是：“总是”、”经常“题目列表；”很少“、”从不“题目列表以及标志

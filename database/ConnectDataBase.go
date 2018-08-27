@@ -11,6 +11,7 @@ import (
 func ConnectDataBase() *gorm.DB {
 	/*连接数据库*/
 	fmt.Printf("###### ConnectDataBase %s%s", config.DbHost, config.DbPort)
+	// db, err := gorm.Open("mysql", "root:7ca0206d9f@tcp("+config.DbHost+config.DbPort+")/heartcloud?charset=utf8&parseTime=true&loc=Local")
 	db, err := gorm.Open("mysql", "root:@tcp("+config.DbHost+config.DbPort+")/xyxjdata?charset=utf8&parseTime=true&loc=Local")
 	if err != nil {
 		panic("failed to connect database")

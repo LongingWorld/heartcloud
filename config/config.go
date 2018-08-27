@@ -4,6 +4,7 @@ const (
 
 	//DbHost is DataBase IP config
 	DbHost = "127.0.0.1:"
+	// DbHost = "101.132.173.162:"
 	//DbPort is DataBase Port config
 	DbPort = "3306"
 	//RedisHost is redis IP config

@@ -124,7 +124,7 @@ func GenerateStaffReport(c *gin.Context) {
 	var staffAnswer []model.StaffAnswer
 
 	/*获取员工答题信息*/
-	if err := db.Table("xy_staff_answer").
+	if err := db.Debug().Table("xy_staff_answer").
 		Where("service_use_staff_id = ? AND staff_id = ? AND is_finish = ? AND deleted_at is null", staAnsID, staffID, 2).
 		Find(&staffAnswer).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
@@ -164,7 +164,7 @@ func GenerateStaffReport(c *gin.Context) {
 	/*开启事务*/
 	tx := db.Begin()
 	/*更新staffanswer表isfinish和答题结束时间*/
-	if err := tx.Table("xy_staff_answer").
+	if err := tx.Debug().Table("xy_staff_answer").
 		Where("service_use_staff_id = ? AND staff_id = ? AND is_finish = ? AND deleted_at is null",
 			staAnsID, staffID, 2).
 		Updates(map[string]interface{}{"is_finish": 1, "deleted_at": time.Now().Format("2006-01-02 15:04:05")}).
