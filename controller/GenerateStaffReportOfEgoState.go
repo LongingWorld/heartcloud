@@ -14,7 +14,7 @@ import (
 var (
 	egoStateSorce         = make([]int, 54)
 	egoStateSubjectAnswer = make([]int, 54)
-	egoStateSubjectName   = make([]string, 55)
+	egoStateSubjectName   = make([]string, 54)
 )
 
 const (

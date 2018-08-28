@@ -62,7 +62,7 @@ var SyntheticalDismension = [6][6][4]int{
 	},
 }
 
-func createCompanyReportData(db *gorm.DB, gauge model.Gauge, comID int, comTimes int) (model.CompReportDetail, error) {
+func createAuthorityRelationComReportData(db *gorm.DB, gauge model.Gauge, comID int, comTimes int) (model.CompReportDetail, error) {
 	// var template map[string]interface{}
 	// template["id"] = gauge.ID
 	// template["name"] = gauge.Name

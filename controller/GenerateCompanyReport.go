@@ -131,7 +131,16 @@ func GenerateCompanyReport(c *gin.Context) {
 		if gaugeinfo.TemplateID == 1 || gaugeinfo.TemplateID == 2 || gaugeinfo.TemplateID == 3 {
 			continue
 		} else if gaugeinfo.TemplateID == 4 {
-			repComData, err := createCompanyReportData(db, gaugeinfo, companyID, distributeTime)
+			repComData, err := createAuthorityRelationComReportData(db, gaugeinfo, companyID, distributeTime)
+			if err != nil {
+				c.JSON(500, "系统异常")
+			}
+
+			repData["template4"] = repComData
+			repDataAPI["template4"] = repComData
+			//fmt.Printf("######  template4 data is :\n %v\n", repData)
+		} else if gaugeinfo.TemplateID == 5 {
+			repComData, err := createChronicFatiguesComReportData(db, gaugeinfo, companyID, distributeTime)
 			if err != nil {
 				c.JSON(500, "系统异常")
 			}
