@@ -20,18 +20,18 @@ type EgoBriefInfo struct {
 	Content string `json:"content"`
 }
 
-//EgoStateClassfy is the member of EgoState struct
-type EgoStateClassfy struct {
-	ParentEgo EgoStateInfoDetail `json:"parent"`
-	AdultEgo  EgoStateInfoDetail `json:"adult"`
-	ChildEgo  EgoStateInfoDetail `json:"child"`
-}
-
 //EgoStateDetail is detials  of The EgoState  struct
 type EgoStateDetail struct {
 	Name          string `json:"name"`
 	PositiveScore int    `json:"positive_score"`
 	NegativeScore int    `json:"negative_score"`
+}
+
+//EgoStateClassfy is the member of EgoState struct
+type EgoStateClassfy struct {
+	ParentEgo EgoStateInfoDetail `json:"parent"`
+	AdultEgo  EgoStateInfoDetail `json:"adult"`
+	ChildEgo  EgoStateInfoDetail `json:"child"`
 }
 
 //EgoStateInfoDetail is the struct of Ego-State Model classify

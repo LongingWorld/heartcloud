@@ -548,7 +548,7 @@ func GenerateStaffReport(c *gin.Context) {
 		reportStaffData.ReportData = string(chroFatiDetail)
 		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 	} else if gauge.TemplateID == 6 {
-		egoStateDetails, err := GenerateStaffReportOfEgoState(tx, subjectsAnswersArr)
+		egoStateDetails, err := GenerateStaffReportOfEgoState(tx, subjectsAnswersArr, staffAnswer[0])
 		if err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:生成自我状态报告失败 error!", file, line)
@@ -616,7 +616,7 @@ func GenerateStaffReport(c *gin.Context) {
 	}
 	/*更新员工答题表xy_staff_answer得分*/
 	if err := tx.Debug().Table("xy_staff_answer").
-		Where("id = ?", staffAnsID).
+		Where("service_use_staff_id = ?", staffAnsID).
 		Update("score", totalScore[0]).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Insert Table xy_subject_answer AND xy_staff_auswer_option error!", file, line)
@@ -629,6 +629,7 @@ func GenerateStaffReport(c *gin.Context) {
 
 	//提交事务
 	tx.Commit()
+	// tx.Rollback()
 	c.JSON(http.StatusOK, "success")
 	return
 }

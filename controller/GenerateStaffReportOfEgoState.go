@@ -43,7 +43,7 @@ const (
 )
 
 /*GenerateStaffReportOfEgoState function generate the Ego-State Model report*/
-func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int) (egoStateResult model.EgoState, err error) {
+func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int, staAns model.StaffAnswer) (egoStateResult model.EgoState, err error) {
 	var (
 		//The Ego-State Model Chart
 		egoStateDetails   []model.EgoStateDetail
@@ -119,7 +119,7 @@ func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int) (egoState
 		if err := db.Debug().
 			Table("xy_subject a").
 			Joins("left join xy_subject_answer b on a.id = b.subject_id").
-			Select("a.sort as subject_sort,a.subject_name as subject_name,b.sort as answer_sort,b.fraction").
+			Select("a.sort as subject_sort,a.subject_name as subject_name,b.sort as answer_sort,b.fraction as answer_score").
 			Where("b.id = ? AND b.subject_id = ?", answerID, subID).
 			Scan(&egoStateRes).Error; err != nil {
 			_, file, line, _ := runtime.Caller(0)
@@ -133,7 +133,9 @@ func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int) (egoState
 		egoStateSubjectAnswer[egoStateRes[0].SubjectSort] = egoStateRes[0].AnswerSort
 		egoStateSubjectName[egoStateRes[0].SubjectSort] = egoStateRes[0].SubjectName
 		fmt.Println("out of range!")
-		egoStatetmp := substring('?', []rune(egoStateRes[0].SubjectName))
+		egoStatetmp := substring('？', []rune(egoStateRes[0].SubjectName))
+		fmt.Printf("********截取后的题目名称为********\n %s\n%s\n", egoStatetmp, egoStateRes[0].SubjectName)
+		fmt.Printf("****查询答案顺序和题目名称egoStateRes****\n %v\n", egoStateRes)
 
 		//获取选择答案是：“总是”、”经常“题目列表；”很少“、”从不“题目列表以及标志
 		if egoStateRes[0].SubjectSort > 0 && egoStateRes[0].SubjectSort <= 5 { //正面控制型父母自我状态
@@ -166,9 +168,14 @@ func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int) (egoState
 	controlModel = getEgoStateScore(1, 5, 6, 10, egoStateSorce, "控制型父母自我状态（CP)")
 	takeCareModel = getEgoStateScore(11, 15, 16, 20, egoStateSorce, "照顾型父母自我状态（NP)")
 	adultModel = getEgoStateScore(21, 30, 0, 0, egoStateSorce, "成人自我状态（A)")
-	freedomChildModel = getEgoStateScore(31, 35, 36, 40, egoStateSorce, "顺从型儿童自我状态（AC)")
-	obeyChildModel = getEgoStateScore(41, 45, 46, 50, egoStateSorce, "自由型儿童自我状态（FC)")
+	freedomChildModel = getEgoStateScore(31, 35, 36, 40, egoStateSorce, "自由型儿童自我状态（FC)")
+	obeyChildModel = getEgoStateScore(41, 45, 46, 50, egoStateSorce, "顺从型儿童自我状态（AC)")
 	rebelChildModel = getEgoStateScore(0, 0, 51, 53, egoStateSorce, "叛逆型儿童自我状态（RC)")
+
+	//新增员工答题唯独得分信息
+	var containsModel []model.EgoStateDetail
+	containsModel = append(containsModel, controlModel, takeCareModel, adultModel, freedomChildModel, obeyChildModel, rebelChildModel)
+	createEgoStateStaffScoreInfo(db, staAns, containsModel)
 
 	//JSON格式数据第一、三部分
 	var (
@@ -293,7 +300,7 @@ func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int) (egoState
 	egoStaClassify.ParentEgo = ParentEgoStaInfo
 	egoStaClassify.AdultEgo = AdultEgoStaInfo
 	egoStaClassify.ChildEgo = ChildEgoStaInfo
-	fmt.Println(egoStateDetails, controlModel, takeCareModel, adultModel, obeyChildModel, freedomChildModel, rebelChildModel)
+	fmt.Println("*****第二部分自我状态得分详细信息*****", egoStateDetails, controlModel, takeCareModel, adultModel, obeyChildModel, freedomChildModel, rebelChildModel)
 
 	//第一部分简介赋值
 	egoStateResult.EgoStateBrief.BriefInfo = egoGauge.EgoBriefInfo
@@ -328,6 +335,7 @@ func countScore(start, end int, arr []int) (count int) {
 	return count
 }
 
+//根据给定的字符char 截取in字符串放入字符串out中返回
 func substring(char rune, in []rune) (out string) {
 
 	for i, v := range in {
@@ -372,4 +380,37 @@ func getEgoStateInfo(id, name string, db *gorm.DB) (egoInfo model.EgoStateInfoTa
 	}
 
 	return egoInfo, nil
+}
+
+func createEgoStateStaffScoreInfo(db *gorm.DB, staAnswer model.StaffAnswer, egodetail []model.EgoStateDetail) {
+	//存储自我状态员工答题维度得分
+	var egoStateStaffScore model.EgoStateStaffScoreTable
+	egoStateStaffScore.StaffID = staAnswer.StaffID
+	egoStateStaffScore.CompanyID = staAnswer.CompanyID
+	egoStateStaffScore.CompanyTimes = staAnswer.CompanyTimes
+	egoStateStaffScore.GaugeID = staAnswer.GaugeID
+	egoStateStaffScore.PosControlParentScore = egodetail[0].PositiveScore
+	egoStateStaffScore.NegControlParentScore = egodetail[0].NegativeScore
+
+	egoStateStaffScore.PosCareParentScore = egodetail[1].PositiveScore
+	egoStateStaffScore.NegCareParentScore = egodetail[1].NegativeScore
+
+	egoStateStaffScore.AdultScore = egodetail[2].PositiveScore
+
+	egoStateStaffScore.NegFreeChildScore = egodetail[3].NegativeScore
+	egoStateStaffScore.PosFreeChildScore = egodetail[3].PositiveScore
+
+	egoStateStaffScore.NegObeyChildScore = egodetail[4].NegativeScore
+	egoStateStaffScore.PosObeyChildScore = egodetail[4].PositiveScore
+
+	egoStateStaffScore.RebelChildScore = egodetail[5].NegativeScore
+
+	/*存入xy_egostate_staff_dim_score*/
+	if err := db.Table("xy_egostate_staff_dim_score").Create(&egoStateStaffScore).Error; err != nil {
+		_, file, line, _ := runtime.Caller(0)
+		log.Printf("%s:%d:Insert Table xy_egostate_staff_score error!", file, line)
+		//回滚事务
+		db.Rollback()
+		return
+	}
 }

@@ -145,8 +145,17 @@ func GenerateCompanyReport(c *gin.Context) {
 				c.JSON(500, "系统异常")
 			}
 
-			repData["template4"] = repComData
-			repDataAPI["template4"] = repComData
+			repData["template5"] = repComData
+			repDataAPI["template5"] = repComData
+			//fmt.Printf("######  template4 data is :\n %v\n", repData)
+		} else if gaugeinfo.TemplateID == 6 {
+			repComData, err := createEgoStateCompanyReportData(db, int(gaugeinfo.ID), companyID, distributeTime)
+			if err != nil {
+				c.JSON(500, "系统异常")
+			}
+
+			repData["template6"] = repComData
+			repDataAPI["template6"] = repComData
 			//fmt.Printf("######  template4 data is :\n %v\n", repData)
 		} else {
 			log.Println("量表ID无效！")
