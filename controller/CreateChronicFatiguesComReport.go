@@ -10,6 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+//StaffInfo 查询员工答题得分、性别、年龄、管理职位性质
 type StaffInfo struct {
 	Score     int
 	Sex       int
@@ -225,6 +226,7 @@ func getSexAndAgeInfoCount(stateCount *int, sexFactor, ageFactor *model.CompareI
 	}
 }
 
+//FactorDetailInfo 疲劳因子分析数据
 type FactorDetailInfo struct {
 	StaffID          int
 	BodyDim          int
