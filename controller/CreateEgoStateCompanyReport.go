@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"heartcloud/model"
 	"log"
 	"runtime"
@@ -66,6 +67,8 @@ func createEgoStateCompanyReportData(db *gorm.DB, gaugeID int, comID int, comTim
 		return model.EgoCompanyData{}, err
 	}
 
+	fmt.Printf("******企业员工人数 %d******", comStaffCount[0])
+
 	if err := db.Debug().Table("xy_egostate_staff_dim_score").
 		Where("gauge_id = ? and company_id = ? and company_times = ?", gaugeID, comID, comTimes).
 		Scan(&egoStaffScores).Error; err != nil {
@@ -73,6 +76,8 @@ func createEgoStateCompanyReportData(db *gorm.DB, gaugeID int, comID int, comTim
 		log.Printf("%s:%d:Select  Table xy_egostate_staff_dim_score error!", file, line)
 		return model.EgoCompanyData{}, err
 	}
+
+	fmt.Printf("*********egoStaffScores **********\n %v\n", egoStaffScores)
 
 	for _, egoStaffInfo := range egoStaffScores {
 
