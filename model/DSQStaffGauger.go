@@ -3,7 +3,7 @@ package model
 //DSQReportData 防御方式自评量表个人报告数据结构
 type DSQReportData struct {
 	DSQBrief   DSQBriefInfo  `json:"dsq_brief"`
-	DSQSense   string        `json:"dsq_sense"`
+	DSQSense   DSQDetailInfo `json:"dsq_sense"`
 	DSQResult  DSQResultData `json:"dsq_result"`
 	DSQDeclare string        `json:"dsq_declare"`
 }
