@@ -46,7 +46,7 @@ var (
 )
 
 //GenerateStaffReportOfDSQ 生成防御方式自评量表（ Defense Style Questionnaire）报告
-func GenerateStaffReportOfDSQ(db *gorm.DB, ansarr map[string]int) (dsqRepData model.DSQReportData, errs error) {
+func GenerateStaffReportOfDSQ(db *gorm.DB, ansarr map[string]int, staAns model.StaffAnswer) (dsqRepData model.DSQReportData, errs error) {
 
 	//成熟防御机制题目列表
 	dsqMatureSub := slicesMerge(sublime, humor)
@@ -342,6 +342,51 @@ func GenerateStaffReportOfDSQ(db *gorm.DB, ansarr map[string]int) (dsqRepData mo
 		{FactorName: splitInfo.Name, FactorScore: splitScore},
 		{FactorName: somatizationInfo.Name, FactorScore: somatizationScore},
 		{FactorName: flinchInfo.Name, FactorScore: flinchScore},
+	}
+
+	//将员工防御因子得分写入数据库
+	var dsqStaffFactorScore model.DSQStaffFactorScore
+	dsqStaffFactorScore = model.DSQStaffFactorScore{
+		StaffID:                    staAns.StaffID,
+		CompanyID:                  staAns.StaffID,
+		CompanyTimes:               staAns.CompanyTimes,
+		GaugeID:                    staAns.GaugeID,
+		ConsealmentScore:           concealScore,
+		MatureScore:                matureFactorScore,
+		IntermediateScore:          midFactorScore,
+		NotMatureScore:             notMatureScore,
+		SublimeScore:               sublimeScore,
+		HumorScore:                 humorScore,
+		ReactionformationScore:     reactionformationScore,
+		RelieveScore:               relieveScore,
+		DebarbScore:                debarbScore,
+		RetionnaliseScore:          retionaliseScore,
+		FalseAltruismScore:         falseAltruismScore,
+		HalfIncappableScore:        halfIncapableScore,
+		InsulateScore:              insulateScore,
+		IdenticalTrendScore:        identicalTrendScore,
+		DenyScore:                  denyScore,
+		ConsumptionTendenciesScore: consumptionTendenciesScore,
+		ExpectScore:                expectScore,
+		AttiliationScore:           attiliationScore,
+		CurbScore:                  curbScore,
+		DepressScore:               depressScore,
+		DartScore:                  dartScore,
+		PassiveAttackScore:         passiveAttackScore,
+		SubconsciousScore:          subconsciousShowScore,
+		ComplainScore:              complainScore,
+		FantasyScore:               fantasyScore,
+		SplitScore:                 splitScore,
+		SomatizationScore:          somatizationScore,
+		FlinchScore:                flinchScore,
+	}
+	/*存入xy_dsq_staff_factor_score*/
+	if err := db.Table("xy_dsq_staff_factor_score").Create(&dsqStaffFactorScore).Error; err != nil {
+		_, file, line, _ := runtime.Caller(0)
+		log.Printf("%s:%d:Insert Table xy_dsq_staff_factor_score error!", file, line)
+		//回滚事务
+		db.Rollback()
+		return
 	}
 
 	//获取成熟型防御机制需要注意的防御因子名称列表

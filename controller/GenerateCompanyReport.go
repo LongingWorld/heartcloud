@@ -159,6 +159,15 @@ func GenerateCompanyReport(c *gin.Context) {
 			repData["template6"] = repComData
 			repDataAPI["template6"] = repComData
 			//fmt.Printf("######  template4 data is :\n %v\n", repData)
+		} else if gaugeinfo.TemplateID == 7 {
+			repComData, err := createDSQComReportData(tx, int(gaugeinfo.ID), companyID, distributeTime)
+			if err != nil {
+				c.JSON(500, "系统异常")
+			}
+
+			repData["template6"] = repComData
+			repDataAPI["template6"] = repComData
+			//fmt.Printf("######  template4 data is :\n %v\n", repData)
 		} else {
 			log.Println("量表ID无效！")
 			return

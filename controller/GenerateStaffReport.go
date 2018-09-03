@@ -567,7 +567,7 @@ func GenerateStaffReport(c *gin.Context) {
 		reportStaffData.ReportData = string(egoStateDetail)
 		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 	} else if gauge.TemplateID == 7 {
-		DSQDetails, err := GenerateStaffReportOfDSQ(tx, subjectsAnswersArr)
+		DSQDetails, err := GenerateStaffReportOfDSQ(tx, subjectsAnswersArr, staffAnswer[0])
 		if err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:生成防御方式报告失败 error!", file, line)
