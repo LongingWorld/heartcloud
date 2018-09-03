@@ -64,6 +64,7 @@ func createEgoStateCompanyReportData(db *gorm.DB, gaugeID int, comID int, comTim
 		Pluck("COUNT(*)", &comStaffCount).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select  Table xy_staff error!", file, line)
+		db.Rollback()
 		return model.EgoCompanyData{}, err
 	}
 
@@ -74,6 +75,7 @@ func createEgoStateCompanyReportData(db *gorm.DB, gaugeID int, comID int, comTim
 		Scan(&egoStaffScores).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select  Table xy_egostate_staff_dim_score error!", file, line)
+		db.Rollback()
 		return model.EgoCompanyData{}, err
 	}
 

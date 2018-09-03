@@ -25,6 +25,7 @@ func createChronicFatiguesComReportData(db *gorm.DB, gauge model.Gauge, comID in
 	if err := db.Debug().Table("xy_staff").Where("company_id = ?", comID).Pluck("COUNT(*)", &anscount).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select Table xy_staff error!", file, line)
+		db.Rollback()
 		return model.ChronicFatigueComRepData{}, err
 	}
 	fmt.Printf("anscount is %d\n", anscount[0])
@@ -36,6 +37,7 @@ func createChronicFatiguesComReportData(db *gorm.DB, gauge model.Gauge, comID in
 		Scan(&staffinfo).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select Table xy_staff_answer error!", file, line)
+		db.Rollback()
 		return model.ChronicFatigueComRepData{}, err
 	}
 
@@ -284,6 +286,7 @@ func getFatigueFactorData(db *gorm.DB, gauge model.Gauge, comID int, times int) 
 		Scan(&factorDtl).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:%s:Select Table xy_staff_auswer_option error!", file, line, err)
+		db.Rollback()
 		return model.FatigueFactor{}
 	}
 

@@ -124,6 +124,7 @@ func GenerateStaffReportOfChronicFatigues(db *gorm.DB, ansarr map[string]int) (c
 			Scan(&sort).Error; err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:%s:Select Table xy_subject_answer error!", file, line, err)
+			db.Rollback()
 			return model.ChronicFatigueStaffReport{}, err
 		}
 		fmt.Printf("#@#@#@   sort is \n%v %v\n", sort, sort[0].AnswerSort)

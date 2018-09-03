@@ -124,6 +124,7 @@ func GenerateStaffReportOfEgoState(db *gorm.DB, ansarr map[string]int, staAns mo
 			Scan(&egoStateRes).Error; err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:%s:Select Table xy_subject_answer error!", file, line, err)
+			db.Rollback()
 			return model.EgoState{}, err
 		}
 		fmt.Println("out of range!")
@@ -376,6 +377,7 @@ func getEgoStateInfo(id, name string, db *gorm.DB) (egoInfo model.EgoStateInfoTa
 		Scan(&egoInfo).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:%s:Select Table xy_subject_answer error!", file, line, err)
+		db.Rollback()
 		return model.EgoStateInfoTable{}, err
 	}
 

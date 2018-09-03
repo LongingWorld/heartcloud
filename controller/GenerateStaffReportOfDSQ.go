@@ -46,7 +46,7 @@ var (
 )
 
 //GenerateStaffReportOfDSQ 生成防御方式自评量表（ Defense Style Questionnaire）报告
-func GenerateStaffReportOfDSQ(db *gorm.DB, ansarr map[string]int, staAns model.StaffAnswer) (dsqRepData model.DSQReportData, errs error) {
+func GenerateStaffReportOfDSQ(db *gorm.DB, ansarr map[string]int) (dsqRepData model.DSQReportData, errs error) {
 
 	//成熟防御机制题目列表
 	dsqMatureSub := slicesMerge(sublime, humor)
@@ -74,6 +74,7 @@ func GenerateStaffReportOfDSQ(db *gorm.DB, ansarr map[string]int, staAns model.S
 			Scan(&ansscore).Error; err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:%s:Select Table xy_subject_answer error!", file, line, err)
+			db.Rollback()
 			return model.DSQReportData{}, err
 		}
 		//保存题目得分信息

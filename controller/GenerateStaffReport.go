@@ -566,6 +566,25 @@ func GenerateStaffReport(c *gin.Context) {
 		}
 		reportStaffData.ReportData = string(egoStateDetail)
 		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
+	} else if gauge.TemplateID == 7 {
+		DSQDetails, err := GenerateStaffReportOfDSQ(tx, subjectsAnswersArr)
+		if err != nil {
+			_, file, line, _ := runtime.Caller(0)
+			log.Printf("%s:%d:生成防御方式报告失败 error!", file, line)
+			//回滚事务
+			tx.Rollback()
+		}
+		fmt.Printf("######    DSQDetails \n  %v\n", DSQDetails)
+		/*转换JSON*/
+		DSQDetail, err := json.Marshal(DSQDetails)
+		if err != nil {
+			log.Println("Marshal JSON字符串错！")
+			//回滚事务
+			tx.Rollback()
+			return
+		}
+		reportStaffData.ReportData = string(DSQDetail)
+		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 	} else {
 		log.Printf("%d未知的模板报告！", gauge.TemplateID)
 	}

@@ -86,6 +86,7 @@ func createAuthorityRelationComReportData(db *gorm.DB, gauge model.Gauge, comID 
 	if err := db.Debug().Table("xy_staff").Where("company_id = ?", 12).Pluck("COUNT(*)", &anscount).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select Table xy_staff error!", file, line)
+		db.Rollback()
 		return model.CompReportDetail{}, err
 	}
 	fmt.Printf("anscount is %d\n", anscount)
@@ -118,6 +119,7 @@ func createAuthorityRelationComReportData(db *gorm.DB, gauge model.Gauge, comID 
 		Scan(&answercounts).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select Table xy_staff_answer error!", file, line)
+		db.Rollback()
 		return model.CompReportDetail{}, err
 	}
 	fmt.Printf("@@@@@@   %v\n", answercounts)
@@ -208,6 +210,7 @@ func createAuthorityRelationComReportData(db *gorm.DB, gauge model.Gauge, comID 
 		Scan(&syntheticalOption).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Select Table xy_staff_answer error!", file, line)
+		db.Rollback()
 		return model.CompReportDetail{}, err
 	}
 

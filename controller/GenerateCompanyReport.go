@@ -126,12 +126,14 @@ func GenerateCompanyReport(c *gin.Context) {
 		return
 	}
 	//fmt.Printf("@@@@@@Original   reportdataapi is: \n%v\n", repDataAPI)
+	/*开启事务*/
+	tx := db.Begin()
 
 	for _, gaugeinfo := range gauges {
 		if gaugeinfo.TemplateID == 1 || gaugeinfo.TemplateID == 2 || gaugeinfo.TemplateID == 3 {
 			continue
 		} else if gaugeinfo.TemplateID == 4 {
-			repComData, err := createAuthorityRelationComReportData(db, gaugeinfo, companyID, distributeTime)
+			repComData, err := createAuthorityRelationComReportData(tx, gaugeinfo, companyID, distributeTime)
 			if err != nil {
 				c.JSON(500, "系统异常")
 			}
@@ -140,7 +142,7 @@ func GenerateCompanyReport(c *gin.Context) {
 			repDataAPI["template4"] = repComData
 			//fmt.Printf("######  template4 data is :\n %v\n", repData)
 		} else if gaugeinfo.TemplateID == 5 {
-			repComData, err := createChronicFatiguesComReportData(db, gaugeinfo, companyID, distributeTime)
+			repComData, err := createChronicFatiguesComReportData(tx, gaugeinfo, companyID, distributeTime)
 			if err != nil {
 				c.JSON(500, "系统异常")
 			}
@@ -149,7 +151,7 @@ func GenerateCompanyReport(c *gin.Context) {
 			repDataAPI["template5"] = repComData
 			//fmt.Printf("######  template4 data is :\n %v\n", repData)
 		} else if gaugeinfo.TemplateID == 6 {
-			repComData, err := createEgoStateCompanyReportData(db, int(gaugeinfo.ID), companyID, distributeTime)
+			repComData, err := createEgoStateCompanyReportData(tx, int(gaugeinfo.ID), companyID, distributeTime)
 			if err != nil {
 				c.JSON(500, "系统异常")
 			}
@@ -184,12 +186,13 @@ func GenerateCompanyReport(c *gin.Context) {
 	fmt.Printf("@@@@@@   reportCompanyDataAPI is:\n %s\n", string(reportCompanyDataAPI))
 
 	//更新xy_report_company_data.report_data数据
-	if err := db.Debug().Table("xy_report_company_data").
+	if err := tx.Debug().Table("xy_report_company_data").
 		Where("report_company_id = ?", reportCompanyID).
 		Updates(map[string]interface{}{"report_data": string(reportCompanyData), "report_data_api": string(reportCompanyDataAPI)}).
 		Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:Update Table xy_report_company_data error!", file, line)
+		tx.Rollback()
 		c.JSON(500, "系统异常")
 		return
 	}

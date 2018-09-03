@@ -34,6 +34,7 @@ func GetStaffEgoStateDetails(id, name string, flag int, behave, behaveLess strin
 		Scan(&table).Error; err != nil {
 		_, file, line, _ := runtime.Caller(0)
 		log.Printf("%s:%d:%s:Select Table xy_ego_state_info error!", file, line, err)
+		db.Rollback()
 		return model.EgoStateDesc{}, err
 	}
 	fmt.Printf("$#$#$#$ Get xy_ego_state_info is %v,%v\n", table.EgoID, table.EgoName)
