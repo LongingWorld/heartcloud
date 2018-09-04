@@ -348,7 +348,7 @@ func GenerateStaffReportOfDSQ(db *gorm.DB, ansarr map[string]int, staAns model.S
 	var dsqStaffFactorScore model.DSQStaffFactorScore
 	dsqStaffFactorScore = model.DSQStaffFactorScore{
 		StaffID:                    staAns.StaffID,
-		CompanyID:                  staAns.StaffID,
+		CompanyID:                  staAns.CompanyID,
 		CompanyTimes:               staAns.CompanyTimes,
 		GaugeID:                    staAns.GaugeID,
 		ConsealmentScore:           concealScore,

@@ -165,8 +165,8 @@ func GenerateCompanyReport(c *gin.Context) {
 				c.JSON(500, "系统异常")
 			}
 
-			repData["template6"] = repComData
-			repDataAPI["template6"] = repComData
+			repData["template7"] = repComData
+			repDataAPI["template7"] = repComData
 			//fmt.Printf("######  template4 data is :\n %v\n", repData)
 		} else {
 			log.Println("量表ID无效！")
@@ -182,7 +182,8 @@ func GenerateCompanyReport(c *gin.Context) {
 		c.JSON(500, "系统异常")
 		return
 	}
-	fmt.Printf("@@@@@@   reportCompanyData is:\n %s\n", string(reportCompanyData))
+	// fmt.Printf("@@@@@@   reportCompanyData is:\n %s\n", string(reportCompanyData))
+	fmt.Printf("@@@@@@   reportCompanyData byte  is:\n %d\n", len(reportCompanyData))
 
 	//map to json
 	reportCompanyDataAPI, err := json.Marshal(&repDataAPI)
@@ -192,7 +193,7 @@ func GenerateCompanyReport(c *gin.Context) {
 		c.JSON(500, "系统异常")
 		return
 	}
-	fmt.Printf("@@@@@@   reportCompanyDataAPI is:\n %s\n", string(reportCompanyDataAPI))
+	//fmt.Printf("@@@@@@   reportCompanyDataAPI is:\n %s\n", string(reportCompanyDataAPI))
 
 	//更新xy_report_company_data.report_data数据
 	if err := tx.Debug().Table("xy_report_company_data").
@@ -205,7 +206,8 @@ func GenerateCompanyReport(c *gin.Context) {
 		c.JSON(500, "系统异常")
 		return
 	}
-
+	//提交事物
+	tx.Commit()
 	c.JSON(http.StatusOK, "success")
 	fmt.Println("@@@@@@@GenerateCompanyReport()end@@@@@@@")
 	return

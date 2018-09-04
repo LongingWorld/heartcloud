@@ -30,7 +30,7 @@ func main() {
 	router.POST("/staffreport", controller.GenerateStaffReport)
 	router.POST("/companyreport", controller.GenerateCompanyReport)
 
-	http.ListenAndServe(":8000", router)
+	http.ListenAndServe(":1210", router)
 }
 
 /*Middleware 中间件 */

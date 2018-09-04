@@ -47,7 +47,7 @@ type DSQComDataDetails struct {
 //DSQComPersent  防御因子百分比数据结构
 type DSQComPersent struct {
 	FactorName    string `json:"factor_name"`
-	FactorPersent []DSQComPersentDTL
+	FactorPersent DSQComPersentDTL
 }
 
 //DSQComPersentDTL 百分比数据
