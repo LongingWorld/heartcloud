@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gomodule/redigo/redis"
@@ -21,6 +22,27 @@ import (
 	subjectsAnswers string
 }
 */
+
+//Redis Pool
+var (
+	RedisClient *redis.Pool
+)
+
+//Initialize RedisPool
+func init() {
+	RedisClient = &redis.Pool{
+		MaxIdle:     100,
+		MaxActive:   1024,
+		IdleTimeout: 180 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			c, err := redis.Dial("tcp", config.RedisHost+config.RedisPort)
+			if err != nil {
+				return nil, err
+			}
+			return c, nil
+		},
+	}
+}
 
 func main() {
 	gin.SetMode(gin.DebugMode) //全局设置环境，此为开发环境，线上环境为gin.ReleaseMode
@@ -55,12 +77,14 @@ func verifyToken(c *gin.Context) (map[string]interface{}, error) {
 	// authorization := c.Request.Header.Get("authorization")
 	fmt.Printf("@@@@@@@  1 23 authorization is :%s\n", authorization)
 	tokenKey := model.AccessTokenPrefix + authorization
-	//连接Redis
+	/*//连接Redis
 	conRedis, err := redis.Dial("tcp", config.RedisHost+config.RedisPort)
 	if err != nil {
 		fmt.Println("Connect to redis error", err)
 		return nil, err
-	}
+	}*/
+	//使用RedisPool
+	conRedis := RedisClient.Get()
 	defer conRedis.Close()
 	keyInfo, err := redis.Bytes(conRedis.Do("Get", tokenKey)) //获取客户端缓存信息
 	if err != nil {
