@@ -273,321 +273,104 @@ func GenerateStaffReport(c *gin.Context) {
 	// }
 
 	var reportStaffData model.ReportStaffData //定义xy_report_staff_data数据库对应结构体结构体，写入数据库
+	//定义通用数据结构类型
+	var reportDataDtl interface{}
+	var err error
 	if gauge.TemplateID == 4 {
 		/*PHP逻辑$staffDimensionScore、$explainStaff，主要写入的即是这两张表*/
 		/* 此为Golang逻辑,新建xy_subject_answer_map_explain(题目答案映射关系解释表),读出员工测试解释内容 */
 		//var mapExplains = make([]model.MapExplain, 0)
-		var staffDimension = make([]model.StaffDimension, 0)
-		for key, value := range subjectsAnswersArr {
-			var mapExplains = make([]model.ExplainsDetail, 0)
-			var mapExplain model.ExplainsDetail
-			var staffDim model.StaffDimension
-			k, _ := strconv.Atoi(key)
-			fmt.Printf("@@@@@@   subject_id is :%d，subject_answer_id is:%d \n", k, value)
-			if k == 354 || k == 355 || k == 356 || k == 357 {
-				if err := tx.Debug().Raw(`SELECT 
-					a.map_id,b.option_name,a.map_explain,a.map_proposal
-				FROM
-					xy_subject_answer_map_explain a,
-					xy_subject_answer b
-				WHERE
-					a.subject_answer_id = b.id
-					AND a.subject_id = ?
-						AND a.subject_answer_id = ?
-						AND a.map_sqe_no = ?`, k, value, 1).Scan(&mapExplain).Error; err != nil {
-					_, file, line, _ := runtime.Caller(0)
-					log.Printf("%s:%d:%s:Select Table xy_subject_answer_map_explain error!", file, line, err)
-					continue
-					//回滚事务
-					//tx.Rollback()
-					//return
-				}
-				/* if err := db.Table("xy_subject_answer_map_explain").
-					Select("map_id", "map_name", "map_explain", "map_proposal").
-					Where("subject_id = ?", k).
-					Where("subject_answer_id = ? AND map_sqe_no = ?", value, 1).
-					Scan(&mapExplain).Error; err != nil {
-					_, file, line, _ := runtime.Caller(0)
-					log.Printf("%s:%d:Select Table xy_subject_answer_map_explain error!", file, line)
-					//回滚事务
-					tx.Rollback()
-					return
-				} */
-			} else if k == 358 {
-				/*第五题:面对上级，总是忐忑不安，内心紧张是高焦虑的一种表现；见到上级躲着走是一种高回避的表现。
-				根据你和上级大多数在一起的情况，你认为自己属于？*/
-				if value == 1130 { /*高焦虑，低回避*/
-					if (subjectsAnswersArr["357"] == 1123 || subjectsAnswersArr["357"] == 1124) &&
-						(subjectsAnswersArr["356"] == 1119 || subjectsAnswersArr["356"] == 1120 ||
-							subjectsAnswersArr["356"] == 1121 || subjectsAnswersArr["356"] == 1122) {
-						if err := tx.Raw(`SELECT 
-							a.map_id,b.option_name,a.map_explain,a.map_proposal
-						FROM
-							xy_subject_answer_map_explain a,
-							xy_subject_answer b
-						WHERE
-							a.subject_answer_id = b.id
-							AND a.subject_id = ?
-								AND a.subject_answer_id = ?
-								AND a.map_sqe_no = ?`, k, value, 2).Scan(&mapExplain).Error; err != nil {
-							_, file, line, _ := runtime.Caller(0)
-							log.Printf("%s:%d:%s:Select Table xy_subject_answer_map_explain error!", file, line, err)
-							continue
-							//回滚事务
-							//tx.Rollback()
-							//return
-						}
-						/* if err := db.Table("xy_subject_answer_map_explain").
-							Select("map_id", "map_name", "map_explain", "map_proposal").
-							Where("subject_id = ?", k).
-							Where("subject_answer_id = ? AND map_sqe_no = ?", value, 2).
-							Scan(&mapExplain).Error; err != nil {
-							_, file, line, _ := runtime.Caller(0)
-							log.Printf("%s:%d:Select Table xy_subject_answer_map_explain error!", file, line)
-							//回滚事务
-							tx.Rollback()
-							return
-						} */
-					} else {
-						if err := tx.Raw(`SELECT 
-							a.map_id,b.option_name,a.map_explain,a.map_proposal
-						FROM
-							xy_subject_answer_map_explain a,
-							xy_subject_answer b
-						WHERE
-							a.subject_answer_id = b.id
-							AND a.subject_id = ?
-								AND a.subject_answer_id = ?
-								AND a.map_sqe_no = ?`, k, value, 1).Scan(&mapExplain).Error; err != nil {
-							_, file, line, _ := runtime.Caller(0)
-							log.Printf("%s:%d:%s:Select Table xy_subject_answer_map_explain error!", file, line, err)
-							continue
-							//回滚事务
-							//tx.Rollback()
-							// return
-						}
-						/* if err := db.Table("xy_subject_answer_map_explain").
-							Select("map_id", "map_name", "map_explain", "map_proposal").
-							Where("subject_id = ?", k).
-							Where("subject_answer_id = ? AND map_sqe_no = ?", value, 1).
-							Scan(&mapExplain).Error; err != nil {
-							_, file, line, _ := runtime.Caller(0)
-							log.Printf("%s:%d:Select Table xy_subject_answer_map_explain error!", file, line)
-							//回滚事务
-							tx.Rollback()
-							return
-						} */
-					}
-				} else if value == 1132 { /*低焦虑，低回避  */
-					if (subjectsAnswersArr["356"] == 1119 || subjectsAnswersArr["356"] == 1120) &&
-						(subjectsAnswersArr["357"] == 1123 || subjectsAnswersArr["357"] == 1124) {
-						if err := tx.Raw(`SELECT 
-							a.map_id,b.option_name,a.map_explain,a.map_proposal
-						FROM
-							xy_subject_answer_map_explain a,
-							xy_subject_answer b
-						WHERE
-							a.subject_answer_id = b.id
-							AND a.subject_id = ?
-								AND a.subject_answer_id = ?
-								AND a.map_sqe_no = ?`, k, value, 1).Scan(&mapExplain).Error; err != nil {
-							_, file, line, _ := runtime.Caller(0)
-							log.Printf("%s:%d:%s:Select Table xy_subject_answer_map_explain error!", file, line, err)
-							continue
-							//回滚事务
-							// tx.Rollback()
-							// return
-						}
-						/* if err := db.Table("xy_subject_answer_map_explain").
-							Select("map_id", "map_name", "map_explain", "map_proposal").
-							Where("subject_id = ?", k).
-							Where("subject_answer_id = ? AND map_sqe_no = ?", value, 1).
-							Scan(&mapExplain).Error; err != nil {
-							_, file, line, _ := runtime.Caller(0)
-							log.Printf("%s:%d:Select Table xy_subject_answer_map_explain error!", file, line)
-							//回滚事务
-							tx.Rollback()
-							return
-						} */
-					} else /* if (subjectsAnswersArr["356"] == 1119 || subjectsAnswersArr["356"] == 1120 ||
-					subjectsAnswersArr["356"] == 1121 || subjectsAnswersArr["356"] == 1122) ||
-					(subjectsAnswersArr["357"] == 1125 || subjectsAnswersArr["357"] == 1126 ||
-						subjectsAnswersArr["357"] == 1127 || subjectsAnswersArr["357"] == 1128) */{
-						if err := tx.Raw(`SELECT 
-							a.map_id,b.option_name,a.map_explain,a.map_proposal
-						FROM
-							xy_subject_answer_map_explain a,
-							xy_subject_answer b
-						WHERE
-							a.subject_answer_id = b.id
-							AND a.subject_id = ?
-								AND a.subject_answer_id = ?
-								AND a.map_sqe_no = ?`, k, value, 2).Scan(&mapExplain).Error; err != nil {
-							_, file, line, _ := runtime.Caller(0)
-							log.Printf("%s:%d:%s:Select Table xy_subject_answer_map_explain error!", file, line, err)
-							continue
-							//回滚事务
-							// tx.Rollback()
-							// return
-						}
-						/* if err := db.Table("xy_subject_answer_map_explain").
-							Select("map_id", "map_name", "map_explain", "map_proposal").
-							Where("subject_id = ?", k).
-							Where("subject_answer_id = ? AND map_sqe_no = ?", value, 2).
-							Scan(&mapExplain).Error; err != nil {
-							_, file, line, _ := runtime.Caller(0)
-							log.Printf("%s:%d:Select Table xy_subject_answer_map_explain error!", file, line)
-							//回滚事务
-							tx.Rollback()
-							return
-						} */
-					}
-				} else if value == 1129 || value == 1131 {
-					if err := tx.Debug().Raw(`SELECT 
-						a.map_id,b.option_name,a.map_explain,a.map_proposal
-					FROM
-						xy_subject_answer_map_explain a,
-						xy_subject_answer b
-					WHERE
-						a.subject_answer_id = b.id
-						AND a.subject_id = ?
-							AND a.subject_answer_id = ?
-							AND a.map_sqe_no = ?`, k, value, 1).Scan(&mapExplain).Error; err != nil {
-						_, file, line, _ := runtime.Caller(0)
-						log.Printf("%s:%d:%s:Select Table xy_subject_answer_map_explain error!", file, line, err)
-						continue
-						//回滚事务
-						//tx.Rollback()
-						//return
-					}
-				}
-				//打印注释
-				fmt.Printf("@@@@@@   subjectsAnswersArr[356] is %d\n subjectsAnswersArr[357] is %d\n",
-					subjectsAnswersArr["356"], subjectsAnswersArr["357"])
-				var ParaConf model.SystemConf
-				if subjectsAnswersArr["356"] == 1119 && subjectsAnswersArr["357"] == 1125 {
-					if err := tx.Debug().Table("xy_system_conf").
-						Select("para_conf").
-						Where("para_id = ?", "XYXJLB4").
-						Scan(&ParaConf).Error; err != nil {
-						_, file, line, _ := runtime.Caller(0)
-						log.Printf("%s:%d:Select Table xy_system_conf error!", file, line)
-						continue
-						//回滚事务
-						// tx.Rollback()
-						// return
-					}
-					/*拼接额外头部信息*/
-					fmt.Printf("@@@@@@   ParaConf is : \n %v \n", ParaConf)
-					midStr := []byte(ParaConf.ParaConf)
-					mapEx := []byte(mapExplain.MapExplain)
-					midStr = append(midStr, mapEx...)
-					mapExplain.MapExplain = string(midStr)
-					fmt.Printf("@@@@@@   midStr is : \n %v \n", string(midStr))
-					fmt.Printf("@@@@@@   mapExplain is : \n %v \n", mapExplain.MapExplain)
-				}
-			}
-			mapExplains = append(mapExplains, mapExplain)
-			staffDim.ExplainsDetail = mapExplains
-
-			/*查询dim_name维度名称*/
-			type resultDim struct {
-				DimensionID int
-				DimName     string
-				DimSuggest  string
-				DimDesc     string
-			}
-			var res resultDim
-			if err := tx.Table("xy_dim_and_subject a").
-				Select("a.dimension_id,b.dim_name,b.dim_suggest,b.dim_desc").Joins("left join xy_dimension b on a.dimension_id = b.id").
-				Where("a.subject_id = ?", k).Scan(&res).Error; err != nil {
-				_, file, line, _ := runtime.Caller(0)
-				log.Printf("%s:%d:Select Table xy_subject_answer_map_explain error!", file, line)
-				continue
-			}
-			//fmt.Printf("@@@@@@   res is %v\n", res)
-
-			staffDim.StaffID = staffID
-			staffDim.DimName = res.DimName
-			//staffDim.NormName = "不知道什么原因"
-			staffDim.DimensionID = res.DimensionID
-			staffDim.DimSuggest = res.DimSuggest
-			staffDim.DimDesc = res.DimDesc
-			staffDimension = append(staffDimension, staffDim)
-		}
-		/*转换JSON*/
-		staDimJSON, err := json.Marshal(staffDimension)
+		reportDataDtl, err = GenerateStaffReportOfAuthorityRelation(tx, subjectsAnswersArr, staffAnswer[0])
 		if err != nil {
-			log.Println("Marshal JSON字符串错！")
+			_, file, line, _ := runtime.Caller(0)
+			log.Printf("%s:%d:生成权威关系报告失败 error!", file, line)
 			//回滚事务
 			tx.Rollback()
-			return
 		}
+		/*转换JSON*/
+		// staDimJSON, err := json.Marshal(staffDimension)
+		// if err != nil {
+		// 	log.Println("Marshal JSON字符串错！")
+		// 	//回滚事务
+		// 	tx.Rollback()
+		// 	return
+		// }
 		// fmt.Printf("staDimJSON is %v\n", staDimJSON)
 
-		reportStaffData.ReportData = string(staDimJSON)
-		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
+		// reportStaffData.ReportData = string(staDimJSON)
+		// fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 		// reportStaffData.ReportStaffID = int(reportStaff.ID)
 	} else if gauge.TemplateID == 5 {
-		chronicFatigueDetails, err := GenerateStaffReportOfChronicFatigues(tx, subjectsAnswersArr)
+		reportDataDtl, err = GenerateStaffReportOfChronicFatigues(tx, subjectsAnswersArr)
 		if err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:生成慢性疲劳报告失败 error!", file, line)
 			//回滚事务
 			tx.Rollback()
 		}
-		fmt.Printf("######    chronicFatigueDetails \n  %v\n", chronicFatigueDetails)
+		// fmt.Printf("######    chronicFatigueDetails \n  %v\n", chronicFatigueDetails)
 		/*转换JSON*/
-		chroFatiDetail, err := json.Marshal(chronicFatigueDetails)
-		if err != nil {
-			log.Println("Marshal JSON字符串错！")
-			//回滚事务
-			tx.Rollback()
-			return
-		}
-		reportStaffData.ReportData = string(chroFatiDetail)
-		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
+		// chroFatiDetail, err := json.Marshal(chronicFatigueDetails)
+		// if err != nil {
+		// 	log.Println("Marshal JSON字符串错！")
+		// 	//回滚事务
+		// 	tx.Rollback()
+		// 	return
+		// }
+		// reportStaffData.ReportData = string(chroFatiDetail)
+		// fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 	} else if gauge.TemplateID == 6 {
-		egoStateDetails, err := GenerateStaffReportOfEgoState(tx, subjectsAnswersArr, staffAnswer[0])
+		reportDataDtl, err = GenerateStaffReportOfEgoState(tx, subjectsAnswersArr, staffAnswer[0])
 		if err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:生成自我状态报告失败 error!", file, line)
 			//回滚事务
 			tx.Rollback()
 		}
-		fmt.Printf("######    EgoStateDetails \n  %v\n", egoStateDetails)
-		/*转换JSON*/
-		egoStateDetail, err := json.Marshal(egoStateDetails)
-		if err != nil {
-			log.Println("Marshal JSON字符串错！")
-			//回滚事务
-			tx.Rollback()
-			return
-		}
-		reportStaffData.ReportData = string(egoStateDetail)
-		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
+		// fmt.Printf("######    EgoStateDetails \n  %v\n", egoStateDetails)
+		// /*转换JSON*/
+		// egoStateDetail, err := json.Marshal(egoStateDetails)
+		// if err != nil {
+		// 	log.Println("Marshal JSON字符串错！")
+		// 	//回滚事务
+		// 	tx.Rollback()
+		// 	return
+		// }
+		// reportStaffData.ReportData = string(egoStateDetail)
+		// fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 	} else if gauge.TemplateID == 7 {
-		DSQDetails, err := GenerateStaffReportOfDSQ(tx, subjectsAnswersArr, staffAnswer[0])
+		reportDataDtl, err = GenerateStaffReportOfDSQ(tx, subjectsAnswersArr, staffAnswer[0])
 		if err != nil {
 			_, file, line, _ := runtime.Caller(0)
 			log.Printf("%s:%d:生成防御方式报告失败 error!", file, line)
 			//回滚事务
 			tx.Rollback()
 		}
-		fmt.Printf("######    DSQDetails \n  %v\n", DSQDetails)
-		/*转换JSON*/
-		DSQDetail, err := json.Marshal(DSQDetails)
-		if err != nil {
-			log.Println("Marshal JSON字符串错！")
-			//回滚事务
-			tx.Rollback()
-			return
-		}
-		reportStaffData.ReportData = string(DSQDetail)
-		fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
+		// fmt.Printf("######    DSQDetails \n  %v\n", DSQDetails)
+		// /*转换JSON*/
+		// DSQDetail, err := json.Marshal(DSQDetails)
+		// if err != nil {
+		// 	log.Println("Marshal JSON字符串错！")
+		// 	//回滚事务
+		// 	tx.Rollback()
+		// 	return
+		// }
+		// reportStaffData.ReportData = string(DSQDetail)
+		// fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 	} else {
 		log.Printf("%d未知的模板报告！", gauge.TemplateID)
 	}
+
+	//转换JSON格式
+	reportDataDtlJSON, errs := json.Marshal(reportDataDtl)
+	if errs != nil {
+		log.Println("Marshal JSON字符串错！")
+		//回滚事务
+		tx.Rollback()
+		return
+	}
+	reportStaffData.ReportData = string(reportDataDtlJSON)
+	fmt.Printf("reportStaffData.ReportData is %s\n", reportStaffData.ReportData)
 
 	reportStaffData.ReportStaffID = int(reportStaff.ID)
 
